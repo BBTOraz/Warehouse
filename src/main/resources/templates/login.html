@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Management System - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-100">
+<div class="min-h-screen flex flex-col md:flex-row">
+    <!-- Left side - Illustration -->
+    <div class="hidden md:flex md:w-1/2 bg-primary-600 text-white p-12 flex-col justify-between">
+        <div>
+            <h1 class="text-4xl font-bold mb-6">Warehouse Management System</h1>
+            <p class="text-lg mb-6">Streamline your inventory operations with our comprehensive warehouse management solution.</p>
+
+            <div class="mt-12">
+                <div class="flex items-center space-x-4 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Efficient inventory tracking</span>
+                </div>
+                <div class="flex items-center space-x-4 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Real-time stock management</span>
+                </div>
+                <div class="flex items-center space-x-4 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Advanced analytics and reporting</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-sm">
+            &copy; 2024 BBT-TAO Warehouse Management. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Right side - Login form -->
+    <div class="flex-1 flex items-center justify-center p-6">
+        <div class="w-full max-w-md">
+            <div class="bg-white rounded-lg shadow-xl p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800">Welcome Back</h2>
+                    <p class="text-gray-500 mt-2">Sign in to access your dashboard</p>
+                </div>
+
+                <!-- Alert messages -->
+                <div th:if="${param.error}" class="p-4 mb-6 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+                    <div class="font-medium">Authentication failed!</div>
+                    <div>Please check your username and password.</div>
+                </div>
+
+                <div th:if="${param.logout}" class="p-4 mb-6 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                    <div class="font-medium">Success!</div>
+                    <div>You have been successfully logged out.</div>
+                </div>
+
+                <form class="space-y-6" th:action="@{/login}" method="POST">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                        <div class="mt-1">
+                            <input id="username" name="username" type="text" required
+                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <div class="mt-1">
+                            <input id="password" name="password" type="password" required
+                                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input id="remember-me" name="remember-me" type="checkbox" checked
+                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                            <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            Sign in
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
