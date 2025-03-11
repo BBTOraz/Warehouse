@@ -2,6 +2,7 @@ package bbt.tao.warehouse.service.impl;
 
 import bbt.tao.warehouse.model.Permission;
 import bbt.tao.warehouse.model.Role;
+import bbt.tao.warehouse.model.enums.RoleType;
 import bbt.tao.warehouse.repository.PermissionRepository;
 import bbt.tao.warehouse.repository.RoleRepository;
 import bbt.tao.warehouse.service.RoleService;
@@ -37,8 +38,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Optional<Role> findRoleByName(String name) {
-        return roleRepository.findByName(name);
+    public Optional<Role> findRoleByName(RoleType name) {
+        return roleRepository.findByRole(name);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package bbt.tao.warehouse.model;
 
+import bbt.tao.warehouse.model.enums.PermissionType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,9 +17,10 @@ public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
-    private String name;
+    private PermissionType name;
     
     @Column
     private String description;

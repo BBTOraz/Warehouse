@@ -27,7 +27,7 @@ public class Inventory {
     
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private InventoryStatus status; // PLANNED, IN_PROGRESS, COMPLETED, CANCELLED
+    private InventoryStatus status;
     
     @ManyToOne
     @JoinColumn(name = "warehouse_id", nullable = false)

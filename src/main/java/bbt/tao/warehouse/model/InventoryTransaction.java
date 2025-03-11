@@ -41,7 +41,7 @@ public class InventoryTransaction {
     private LocalDate expirationDate;
     
     @Column(name = "document_number")
-    private String documentNumber; // Номер накладной, акта и т.д.
+    private String documentNumber;
     
     @ManyToOne
     @JoinColumn(name = "supplier_id")

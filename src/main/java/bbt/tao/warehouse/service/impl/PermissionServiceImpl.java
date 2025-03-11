@@ -1,6 +1,7 @@
 package bbt.tao.warehouse.service.impl;
 
 import bbt.tao.warehouse.model.Permission;
+import bbt.tao.warehouse.model.enums.PermissionType;
 import bbt.tao.warehouse.repository.PermissionRepository;
 import bbt.tao.warehouse.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public Optional<Permission> findPermissionByName(String name) {
+    public Optional<Permission> findPermissionByName(PermissionType name) {
         return permissionRepository.findByName(name);
     }
 

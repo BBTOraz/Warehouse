@@ -2,6 +2,7 @@ package bbt.tao.warehouse.service.impl;
 
 import bbt.tao.warehouse.model.Role;
 import bbt.tao.warehouse.model.User;
+import bbt.tao.warehouse.model.enums.RoleType;
 import bbt.tao.warehouse.repository.RoleRepository;
 import bbt.tao.warehouse.repository.UserRepository;
 import bbt.tao.warehouse.service.UserService;
@@ -50,7 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findUsersByRole(String roleName) {
+    public List<User> findUsersByRole(RoleType roleName) {
         return userRepository.findByRole(roleName);
     }
 
@@ -90,11 +91,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void assignRole(Long userId, String roleName) {
+    public void assignRole(Long userId, RoleType roleName) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
 
-        Role role = roleRepository.findByName(roleName)
+        Role role = roleRepository.findByRole(roleName)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleName));
 
         user.getRoles().add(role);
@@ -102,11 +103,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void removeRole(Long userId, String roleName) {
+    public void removeRole(Long userId, RoleType roleName) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
 
-        Role role = roleRepository.findByName(roleName)
+        Role role = roleRepository.findByRole(roleName)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleName));
 
         user.getRoles().remove(role);

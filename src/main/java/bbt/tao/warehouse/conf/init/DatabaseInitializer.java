@@ -5,6 +5,8 @@ import bbt.tao.warehouse.model.Permission;
 import bbt.tao.warehouse.model.Role;
 import bbt.tao.warehouse.model.Supplier;
 import bbt.tao.warehouse.model.User;
+import bbt.tao.warehouse.model.enums.PermissionType;
+import bbt.tao.warehouse.model.enums.RoleType;
 import bbt.tao.warehouse.repository.CustomerRepository;
 import bbt.tao.warehouse.repository.PermissionRepository;
 import bbt.tao.warehouse.repository.RoleRepository;
@@ -13,7 +15,6 @@ import bbt.tao.warehouse.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,26 +38,27 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         log.info("Initializing database with default data");
-        Map<String, Permission> permissions = initPermissions();
-        Map<String, Role> roles = initRoles(permissions);
+        Map<PermissionType, Permission> permissions = initPermissions();
+        Map<RoleType, Role> roles = initRoles(permissions);
         initUsers(roles);
         initSuppliers();
         initCustomers();
     }
 
-    private Map<String, Permission> initPermissions() {
+
+    private Map<PermissionType, Permission> initPermissions() {
         if (permissionRepository.count() == 0) {
             log.info("Creating default permissions");
 
             List<Permission> permissionsList = Arrays.asList(
-                createPermission("INVENTORY_CREATE", "Создание инвентаризации"),
-                createPermission("INVENTORY_READ", "Просмотр инвентаризаций"),
-                createPermission("INVENTORY_UPDATE", "Обновление инвентаризаций"),
-                createPermission("PRODUCT_CREATE", "Создание товаров"),
-                createPermission("PRODUCT_READ", "Просмотр товаров"),
-                createPermission("PRODUCT_UPDATE", "Обновление товаров"),
-                createPermission("TRANSACTION_CREATE", "Создание операций"),
-                createPermission("TRANSACTION_READ", "Просмотр операций")
+                createPermission(PermissionType.INVENTORY_CREATE, "Создание инвентаризации"),
+                createPermission(PermissionType.INVENTORY_READ, "Просмотр инвентаризаций"),
+                createPermission(PermissionType.INVENTORY_UPDATE, "Обновление инвентаризаций"),
+                createPermission(PermissionType.PRODUCT_CREATE, "Создание товаров"),
+                createPermission(PermissionType.PRODUCT_READ, "Просмотр товаров"),
+                createPermission(PermissionType.PRODUCT_UPDATE, "Обновление товаров"),
+                createPermission(PermissionType.TRANSACTION_CREATE, "Создание операций"),
+                createPermission(PermissionType.TRANSACTION_READ, "Просмотр операций")
             );
 
             permissionRepository.saveAll(permissionsList);
@@ -70,65 +72,64 @@ public class DatabaseInitializer implements CommandLineRunner {
         }
     }
 
-    private Permission createPermission(String name, String description) {
+    private Permission createPermission(PermissionType name,  String description) {
         Permission permission = new Permission();
         permission.setName(name);
         permission.setDescription(description);
         return permission;
     }
 
-    private Map<String, Role> initRoles(Map<String, Permission> permissions) {
+    private Map<RoleType, Role> initRoles(Map<PermissionType, Permission> permissions) {
         if (roleRepository.count() == 0) {
             log.info("Creating default roles");
 
             // Admin role with all permissions
             Role adminRole = new Role();
-            adminRole.setName("ROLE_ADMIN");
+            adminRole.setRole(RoleType.ADMIN);
             adminRole.setDescription("Администратор системы");
             adminRole.setPermissions(new ArrayList<>(permissions.values()));
 
             // Manager role with selected permissions
             Role managerRole = new Role();
-            managerRole.setName("ROLE_MANAGER");
+            managerRole.setRole(RoleType.MANAGER);
             managerRole.setDescription("Менеджер склада");
             List<Permission> managerPermissions = new ArrayList<>(Arrays.asList(
-                permissions.get("INVENTORY_CREATE"),
-                permissions.get("INVENTORY_READ"),
-                permissions.get("INVENTORY_UPDATE"),
-                permissions.get("PRODUCT_READ"),
-                permissions.get("TRANSACTION_CREATE"),
-                permissions.get("TRANSACTION_READ")
+                permissions.get(PermissionType.INVENTORY_CREATE),
+                permissions.get(PermissionType.INVENTORY_READ),
+                permissions.get(PermissionType.INVENTORY_UPDATE),
+                permissions.get(PermissionType.PRODUCT_CREATE),
+                permissions.get(PermissionType.TRANSACTION_CREATE),
+                permissions.get(PermissionType.TRANSACTION_READ)
             ));
+
             managerRole.setPermissions(managerPermissions);
 
             // Warehouse role with limited permissions
             Role warehouseRole = new Role();
-            warehouseRole.setName("ROLE_WAREHOUSE");
+            warehouseRole.setRole(RoleType.WAREHOUSE_WORKER);
             warehouseRole.setDescription("Работник склада");
             List<Permission> warehousePermissions = new ArrayList<>(Arrays.asList(
-                permissions.get("INVENTORY_READ"),
-                permissions.get("PRODUCT_READ"),
-                permissions.get("TRANSACTION_READ")
+                permissions.get(PermissionType.INVENTORY_READ),
+                permissions.get(PermissionType.PRODUCT_READ),
+                permissions.get(PermissionType.TRANSACTION_READ)
             ));
             warehouseRole.setPermissions(warehousePermissions);
 
             roleRepository.saveAll(Arrays.asList(adminRole, managerRole, warehouseRole));
 
-            Map<String, Role> roleMap = Map.of(
-                "ROLE_ADMIN", adminRole,
-                "ROLE_MANAGER", managerRole,
-                "ROLE_WAREHOUSE", warehouseRole
+            return Map.of(
+                RoleType.ADMIN, adminRole,
+                RoleType.MANAGER, managerRole,
+                RoleType.WAREHOUSE_WORKER, warehouseRole
             );
-
-            return roleMap;
         } else {
             log.info("Roles already exist");
             return roleRepository.findAll().stream()
-                .collect(Collectors.toMap(Role::getName, role -> role));
+                .collect(Collectors.toMap(Role::getRole, role -> role));
         }
     }
 
-    private void initUsers(Map<String, Role> roles) {
+    private void initUsers(Map<RoleType, Role> roles) {
         if (userRepository.count() == 0) {
             log.info("Creating default users");
 
@@ -141,7 +142,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             admin.setEmail("admin@warehouse.local");
             admin.setPhone("+7 (900) 123-45-67");
             admin.setIsActive(true);
-            admin.setRoles(new ArrayList<>(List.of(roles.get("ROLE_ADMIN"))));
+            admin.setRoles(new ArrayList<>(List.of(roles.get(RoleType.ADMIN))));
 
             // Manager users
             User manager1 = new User();
@@ -152,7 +153,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             manager1.setEmail("manager@warehouse.local");
             manager1.setPhone("+7 (900) 234-56-78");
             manager1.setIsActive(true);
-            manager1.setRoles(new ArrayList<>(List.of(roles.get("ROLE_MANAGER"))));
+            manager1.setRoles(new ArrayList<>(List.of(roles.get(RoleType.MANAGER))));
 
             User manager2 = new User();
             manager2.setUsername("marina");
@@ -162,7 +163,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             manager2.setEmail("marina@warehouse.local");
             manager2.setPhone("+7 (900) 555-44-33");
             manager2.setIsActive(true);
-            manager2.setRoles(new ArrayList<>(List.of(roles.get("ROLE_MANAGER"))));
+            manager2.setRoles(new ArrayList<>(List.of(roles.get(RoleType.MANAGER))));
 
             // Warehouse users
             User warehouse1 = new User();
@@ -173,7 +174,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             warehouse1.setEmail("warehouse@warehouse.local");
             warehouse1.setPhone("+7 (900) 345-67-89");
             warehouse1.setIsActive(true);
-            warehouse1.setRoles(new ArrayList<>(List.of(roles.get("ROLE_WAREHOUSE"))));
+            warehouse1.setRoles(new ArrayList<>(List.of(roles.get(RoleType.WAREHOUSE_WORKER))));
 
             User warehouse2 = new User();
             warehouse2.setUsername("ivan");
@@ -183,7 +184,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             warehouse2.setEmail("ivan@warehouse.local");
             warehouse2.setPhone("+7 (900) 777-88-99");
             warehouse2.setIsActive(true);
-            warehouse2.setRoles(new ArrayList<>(List.of(roles.get("ROLE_WAREHOUSE"))));
+            warehouse2.setRoles(new ArrayList<>(List.of(roles.get(RoleType.WAREHOUSE_WORKER))));
 
             User warehouse3 = new User();
             warehouse3.setUsername("anna");
@@ -193,7 +194,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             warehouse3.setEmail("anna@warehouse.local");
             warehouse3.setPhone("+7 (900) 111-22-33");
             warehouse3.setIsActive(true);
-            warehouse3.setRoles(new ArrayList<>(List.of(roles.get("ROLE_WAREHOUSE"))));
+            warehouse3.setRoles(new ArrayList<>(List.of(roles.get(RoleType.WAREHOUSE_WORKER))));
 
             userRepository.saveAll(Arrays.asList(admin, manager1, manager2, warehouse1, warehouse2, warehouse3));
         }
@@ -288,4 +289,6 @@ public class DatabaseInitializer implements CommandLineRunner {
         customer.setIsActive(true);
         return customer;
     }
+
+
 }

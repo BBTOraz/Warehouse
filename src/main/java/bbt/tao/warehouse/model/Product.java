@@ -20,7 +20,10 @@ public class Product {
     private String description;
     
     @Column(name = "sku", nullable = false, unique = true)
-    private String sku; // Уникальный идентификатор товара
+    private String sku;
+
+    @Column(name = "price", nullable = false)
+    private int price;
     
     @Column(name = "barcode")
     private String barcode;
@@ -30,10 +33,10 @@ public class Product {
     private Category category;
     
     @Column(name = "unit_of_measure")
-    private String unitOfMeasure; // шт, кг, л и т.д.
+    private String unitOfMeasure;
     
     @Column(name = "min_stock_level")
-    private Double minStockLevel; // Минимальный остаток
+    private Double minStockLevel;
     
     @Column(name = "image_url")
     private String imageUrl;

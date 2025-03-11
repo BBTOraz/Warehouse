@@ -1,6 +1,7 @@
 package bbt.tao.warehouse.service;
 
 import bbt.tao.warehouse.model.User;
+import bbt.tao.warehouse.model.enums.RoleType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public interface UserService {
 
     Optional<User> findUserByEmail(String email);
 
-    List<User> findUsersByRole(String roleName);
+    List<User> findUsersByRole(RoleType roleName);
 
     User saveUser(User user);
 
@@ -29,9 +30,9 @@ public interface UserService {
 
     void changePassword(Long userId, String newPassword);
 
-    void assignRole(Long userId, String roleName);
+    void assignRole(Long userId, RoleType roleName);
 
-    void removeRole(Long userId, String roleName);
+    void removeRole(Long userId, RoleType roleName);
 
     boolean checkIfValidOldPassword(User user, String oldPassword);
 

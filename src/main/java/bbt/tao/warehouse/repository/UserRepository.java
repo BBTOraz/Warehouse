@@ -1,6 +1,7 @@
 package bbt.tao.warehouse.repository;
 
 import bbt.tao.warehouse.model.User;
+import bbt.tao.warehouse.model.enums.RoleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByIsActiveTrue();
 
-    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
-    List<User> findByRole(@Param("roleName") String roleName);
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.role = :roleName")
+    List<User> findByRole(@Param("roleName") RoleType roleName);
 }

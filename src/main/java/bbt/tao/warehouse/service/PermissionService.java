@@ -1,6 +1,7 @@
 package bbt.tao.warehouse.service;
 
 import bbt.tao.warehouse.model.Permission;
+import bbt.tao.warehouse.model.enums.PermissionType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface PermissionService {
 
     Optional<Permission> findPermissionById(Long id);
 
-    Optional<Permission> findPermissionByName(String name);
+    Optional<Permission> findPermissionByName(PermissionType name);
 
     Permission savePermission(Permission permission);
 
