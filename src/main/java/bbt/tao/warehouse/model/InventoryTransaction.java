@@ -19,15 +19,15 @@ public class InventoryTransaction {
     @Column(name = "transaction_type", nullable = false)
     private TransactionType transactionType; // RECEIVING, SHIPPING, TRANSFER, ADJUSTMENT
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_location_id")
     private Location sourceLocation;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "destination_location_id")
     private Location destinationLocation;
     

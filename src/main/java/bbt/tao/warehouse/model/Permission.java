@@ -1,6 +1,8 @@
 package bbt.tao.warehouse.model;
 
 import bbt.tao.warehouse.model.enums.PermissionType;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,6 +13,7 @@ import java.util.Set;
 
 // Разрешения
 @Data
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 @Table(name = "permissions")
 public class Permission {

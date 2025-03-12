@@ -32,7 +32,7 @@ public class User {
     @Column
     private String phone;
     
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST })
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),

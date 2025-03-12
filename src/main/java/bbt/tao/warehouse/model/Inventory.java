@@ -1,6 +1,8 @@
 package bbt.tao.warehouse.model;
 
 import bbt.tao.warehouse.model.enums.InventoryStatus;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -9,6 +11,7 @@ import java.util.List;
 
 // Инвентаризация
 @Data
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 @Table(name = "inventories")
 public class Inventory {
@@ -29,14 +32,14 @@ public class Inventory {
     @Column(name = "status", nullable = false)
     private InventoryStatus status;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id", nullable = false)
     private Warehouse warehouse;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
     
-    @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InventoryCount> counts = new ArrayList<>();
 } 

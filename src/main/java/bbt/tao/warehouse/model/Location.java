@@ -18,7 +18,7 @@ public class Location {
     @Column
     private String description;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id", nullable = false)
     private Warehouse warehouse;
     
