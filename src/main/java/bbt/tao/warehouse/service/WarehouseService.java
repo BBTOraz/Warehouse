@@ -1,7 +1,7 @@
 package bbt.tao.warehouse.service;
 
-import bbt.tao.warehouse.model.Location;
-import bbt.tao.warehouse.model.Warehouse;
+import bbt.tao.warehouse.dto.location.LocationDTO;
+import bbt.tao.warehouse.dto.warehouse.WarehouseDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,27 +10,27 @@ import java.util.Optional;
 @Service
 public interface WarehouseService {
 
-    List<Warehouse> findAllWarehouses();
+    List<WarehouseDTO> findAllWarehouses();
 
-    List<Warehouse> findAllActiveWarehouses();
+    List<WarehouseDTO> findAllActiveWarehouses();
 
-    Optional<Warehouse> findWarehouseById(Long id);
+    Optional<WarehouseDTO> findWarehouseById(Long id);
 
-    List<Warehouse> findWarehousesByName(String name);
+    List<WarehouseDTO> findWarehousesByName(String name);
 
-    Warehouse saveWarehouse(Warehouse warehouse);
+    WarehouseDTO saveWarehouse(WarehouseDTO warehouseDTO);
 
     void deleteWarehouse(Long id);
 
-    List<Location> findLocationsByWarehouse(Long warehouseId);
+    List<LocationDTO> findLocationsByWarehouse(Long warehouseId);
 
-    Optional<Location> findLocationById(Long id);
+    Optional<LocationDTO> findLocationById(Long id);
 
-    Optional<Location> findLocationByCode(String code, Long warehouseId);
+    Optional<LocationDTO> findLocationByCode(String code, Long warehouseId);
 
-    List<Location> findSuitableLocations(Double weight, Double volume, Long warehouseId);
+    List<LocationDTO> findSuitableLocations(Double weight, Double volume, Long warehouseId);
 
-    Location saveLocation(Location location);
+    LocationDTO saveLocation(LocationDTO locationDTO);
 
     void deleteLocation(Long id);
 }

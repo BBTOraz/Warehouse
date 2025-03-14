@@ -1,6 +1,10 @@
 package bbt.tao.warehouse.service.impl;
 
+import bbt.tao.warehouse.dto.inventory.InventoryItemDTO;
+import bbt.tao.warehouse.dto.inventory.InventoryTransactionDTO;
 import bbt.tao.warehouse.exceptions.InsufficientStockException;
+import bbt.tao.warehouse.mapper.InventoryItemMapper;
+import bbt.tao.warehouse.mapper.InventoryTransactionMapper;
 import bbt.tao.warehouse.model.InventoryItem;
 import bbt.tao.warehouse.model.InventoryTransaction;
 import bbt.tao.warehouse.model.enums.TransactionType;
@@ -14,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -21,127 +26,182 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
 
     private final InventoryTransactionRepository transactionRepository;
     private final InventoryItemRepository inventoryItemRepository;
+    private final InventoryTransactionMapper transactionMapper;
+    private final InventoryItemMapper inventoryItemMapper;
 
     @Autowired
-    public InventoryTransactionServiceImpl(InventoryTransactionRepository transactionRepository,
-                                           InventoryItemRepository inventoryItemRepository) {
+    public InventoryTransactionServiceImpl(
+            InventoryTransactionRepository transactionRepository,
+            InventoryItemRepository inventoryItemRepository,
+            InventoryTransactionMapper transactionMapper, InventoryItemMapper inventoryItemMapper) {
         this.transactionRepository = transactionRepository;
         this.inventoryItemRepository = inventoryItemRepository;
+        this.transactionMapper = transactionMapper;
+        this.inventoryItemMapper = inventoryItemMapper;
     }
 
     @Override
-    public List<InventoryTransaction> findAllTransactions() {
-        return transactionRepository.findAll();
+    public List<InventoryTransactionDTO> findAllTransactions() {
+        List<InventoryTransaction> transactions = transactionRepository.findAll();
+        return transactions.stream()
+                .map(transactionMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<InventoryTransaction> findTransactionById(Long id) {
-        return transactionRepository.findById(id);
+    public Optional<InventoryTransactionDTO> findTransactionById(Long id) {
+        return transactionRepository.findById(id)
+                .map(transactionMapper::toDTO);
     }
 
     @Override
-    public List<InventoryTransaction> findTransactionsByProduct(Long productId) {
-        return transactionRepository.findByProduct_Id(productId);
+    public List<InventoryTransactionDTO> findTransactionsByProduct(Long productId) {
+        List<InventoryTransaction> transactions = transactionRepository.findByProduct_Id(productId);
+        return transactions.stream()
+                .map(transactionMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<InventoryTransaction> findTransactionsByType(TransactionType transactionType) {
-        return transactionRepository.findByTransactionType(transactionType);
+    public List<InventoryTransactionDTO> findTransactionsByType(TransactionType transactionType) {
+        List<InventoryTransaction> transactions = transactionRepository.findByTransactionType(transactionType);
+        return transactions.stream()
+                .map(transactionMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<InventoryTransaction> findTransactionsBySupplier(Long supplierId) {
-        return transactionRepository.findBySupplier_Id(supplierId);
+    public List<InventoryTransactionDTO> findTransactionsBySupplier(Long supplierId) {
+        List<InventoryTransaction> transactions = transactionRepository.findBySupplier_Id(supplierId);
+        return transactions.stream()
+                .map(transactionMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<InventoryTransaction> findTransactionsByCustomer(Long customerId) {
-        return transactionRepository.findByCustomer_Id(customerId);
+    public List<InventoryTransactionDTO> findTransactionsByCustomer(Long customerId) {
+        List<InventoryTransaction> transactions = transactionRepository.findByCustomer_Id(customerId);
+        return transactions.stream()
+                .map(transactionMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<InventoryTransaction> findTransactionsByDocumentNumber(String documentNumber) {
-        return transactionRepository.findByDocumentNumber(documentNumber);
+    public List<InventoryTransactionDTO> findTransactionsByDocumentNumber(String documentNumber) {
+        List<InventoryTransaction> transactions = transactionRepository.findByDocumentNumber(documentNumber);
+        return transactions.stream()
+                .map(transactionMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<InventoryTransaction> findTransactionsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return transactionRepository.findByDateRange(startDate, endDate);
+    public List<InventoryTransactionDTO> findTransactionsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        List<InventoryTransaction> transactions = transactionRepository.findByDateRange(startDate, endDate);
+        return transactions.stream()
+                .map(transactionMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<InventoryTransaction> findTransactionsByLocation(Long locationId) {
-        return transactionRepository.findByLocation(locationId);
+    public List<InventoryTransactionDTO> findTransactionsByLocation(Long locationId) {
+        List<InventoryTransaction> transactions = transactionRepository.findByLocation(locationId);
+        return transactions.stream()
+                .map(transactionMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public InventoryTransaction createReceivingTransaction(InventoryTransaction transaction) {
+    public InventoryTransactionDTO createReceivingTransaction(InventoryTransactionDTO transactionDTO) {
+        if (transactionDTO == null) {
+            throw new IllegalArgumentException("Transaction data cannot be null");
+        }
+
+        InventoryTransaction transaction = transactionMapper.toEntity(transactionDTO);
+
         transaction.setTransactionType(TransactionType.RECEIVING);
         transaction.setTransactionDate(LocalDateTime.now());
 
-        // Сохраняем транзакцию
+        // Save transaction
         InventoryTransaction savedTransaction = transactionRepository.save(transaction);
 
-        // Обновляем остатки
+        // Update inventory
         updateInventoryOnReceiving(transaction);
 
-        return savedTransaction;
+        return transactionMapper.toDTO(savedTransaction);
     }
 
     @Override
-    public InventoryTransaction createShippingTransaction(InventoryTransaction transaction) throws InsufficientStockException {
+    public InventoryTransactionDTO createShippingTransaction(InventoryTransactionDTO transactionDTO) throws InsufficientStockException {
+        if (transactionDTO == null) {
+            throw new IllegalArgumentException("Transaction data cannot be null");
+        }
+
+        InventoryTransaction transaction = transactionMapper.toEntity(transactionDTO);
+
         transaction.setTransactionType(TransactionType.SHIPPING);
         transaction.setTransactionDate(LocalDateTime.now());
 
-        // Проверяем наличие достаточного количества товара
+        // Check sufficient stock
         checkSufficientStock(transaction.getProduct().getId(), transaction.getSourceLocation().getId(),
                 transaction.getBatchNumber(), transaction.getQuantity());
 
-        // Сохраняем транзакцию
+        // Save transaction
         InventoryTransaction savedTransaction = transactionRepository.save(transaction);
 
-        // Обновляем остатки
+        // Update inventory
         updateInventoryOnShipping(transaction);
 
-        return savedTransaction;
+        return transactionMapper.toDTO(savedTransaction);
     }
 
     @Override
-    public InventoryTransaction createTransferTransaction(InventoryTransaction transaction) throws InsufficientStockException {
+    public InventoryTransactionDTO createTransferTransaction(InventoryTransactionDTO transactionDTO) throws InsufficientStockException {
+        if (transactionDTO == null) {
+            throw new IllegalArgumentException("Transaction data cannot be null");
+        }
+
+        InventoryTransaction transaction = transactionMapper.toEntity(transactionDTO);
+
         transaction.setTransactionType(TransactionType.TRANSFER);
         transaction.setTransactionDate(LocalDateTime.now());
 
-        // Проверяем наличие достаточного количества товара
+        // Check sufficient stock
         checkSufficientStock(transaction.getProduct().getId(), transaction.getSourceLocation().getId(),
                 transaction.getBatchNumber(), transaction.getQuantity());
 
-        // Сохраняем транзакцию
+        // Save transaction
         InventoryTransaction savedTransaction = transactionRepository.save(transaction);
 
-        // Обновляем остатки
+        // Update inventory
         updateInventoryOnTransfer(transaction);
 
-        return savedTransaction;
+        return transactionMapper.toDTO(savedTransaction);
     }
 
     @Override
-    public InventoryTransaction createAdjustmentTransaction(InventoryTransaction transaction) throws InsufficientStockException {
+    public InventoryTransactionDTO createAdjustmentTransaction(InventoryTransactionDTO transactionDTO) throws InsufficientStockException {
+        if (transactionDTO == null) {
+            throw new IllegalArgumentException("Transaction data cannot be null");
+        }
+
+        InventoryTransaction transaction = transactionMapper.toEntity(transactionDTO);
+
         transaction.setTransactionType(TransactionType.ADJUSTMENT);
         transaction.setTransactionDate(LocalDateTime.now());
 
-        // Если это отрицательная корректировка, проверяем наличие достаточного количества товара
+        // For negative adjustments, check sufficient stock
         if (transaction.getQuantity() < 0) {
             checkSufficientStock(transaction.getProduct().getId(), transaction.getSourceLocation().getId(),
                     transaction.getBatchNumber(), Math.abs(transaction.getQuantity()));
         }
 
-        // Сохраняем транзакцию
+        // Save transaction
         InventoryTransaction savedTransaction = transactionRepository.save(transaction);
 
-        // Обновляем остатки
+        // Update inventory
         updateInventoryOnAdjustment(transaction);
 
-        return savedTransaction;
+        return transactionMapper.toDTO(savedTransaction);
     }
 
     @Override
@@ -150,8 +210,11 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
     }
 
     @Override
-    public List<InventoryItem> getStockLevels(Long productId) {
-        return inventoryItemRepository.findByProduct_Id(productId);
+    public List<InventoryItemDTO> getStockLevels(Long productId) {
+        List<InventoryItem> items = inventoryItemRepository.findByProduct_Id(productId);
+        return items.stream()
+                .map(inventoryItemMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     private void updateInventoryOnTransfer(InventoryTransaction transaction) {
@@ -234,17 +297,15 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
         }
     }
 
-    // Проверка наличия достаточного количества товара
     private void checkSufficientStock(Long productId, Long locationId, String batchNumber, Double quantity) throws InsufficientStockException {
         Optional<InventoryItem> inventoryItemOptional = inventoryItemRepository
                 .findByProduct_IdAndLocation_IdAndBatchNumber(productId, locationId, batchNumber);
 
-        if (!inventoryItemOptional.isPresent() || inventoryItemOptional.get().getQuantity() < quantity) {
+        if (inventoryItemOptional.isEmpty() || inventoryItemOptional.get().getQuantity() < quantity) {
             throw new InsufficientStockException("Insufficient stock for product ID: " + productId + " at location ID: " + locationId);
         }
     }
 
-    // Обновление остатков при получении товара
     private void updateInventoryOnReceiving(InventoryTransaction transaction) {
         Optional<InventoryItem> inventoryItemOptional = inventoryItemRepository
                 .findByProduct_IdAndLocation_IdAndBatchNumber(
@@ -255,11 +316,11 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
         InventoryItem inventoryItem;
 
         if (inventoryItemOptional.isPresent()) {
-            // Обновляем существующий остаток
+            // Update existing inventory
             inventoryItem = inventoryItemOptional.get();
             inventoryItem.setQuantity(inventoryItem.getQuantity() + transaction.getQuantity());
         } else {
-            // Создаем новую запись об остатке
+            // Create new inventory record
             inventoryItem = new InventoryItem();
             inventoryItem.setProduct(transaction.getProduct());
             inventoryItem.setLocation(transaction.getDestinationLocation());
@@ -272,7 +333,6 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
         inventoryItemRepository.save(inventoryItem);
     }
 
-    // Обновление остатков при отгрузке товара
     private void updateInventoryOnShipping(InventoryTransaction transaction) {
         Optional<InventoryItem> inventoryItemOptional = inventoryItemRepository
                 .findByProduct_IdAndLocation_IdAndBatchNumber(
@@ -285,7 +345,6 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
             double newQuantity = inventoryItem.getQuantity() - transaction.getQuantity();
 
             if (newQuantity > 0) {
-                // Обновляем существующий остаток
                 inventoryItem.setQuantity(newQuantity);
                 inventoryItem.setLastInventoryDate(LocalDateTime.now());
                 inventoryItemRepository.save(inventoryItem);

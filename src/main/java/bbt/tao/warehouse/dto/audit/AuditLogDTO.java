@@ -1,8 +1,11 @@
 package bbt.tao.warehouse.dto.audit;
 
 
-import bbt.tao.warehouse.dto.user.UserDTO;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data

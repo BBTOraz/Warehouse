@@ -25,4 +25,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.isActive = true")
     List<Product> findAllActiveProducts();
+
+    List<Product> findByIsActiveTrue();
+
+    boolean existsBySku(String sku);
 }

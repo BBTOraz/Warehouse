@@ -1,6 +1,8 @@
 package bbt.tao.warehouse.service;
 
-import bbt.tao.warehouse.model.Inventory;
+import bbt.tao.warehouse.dto.inventory.InventoryCountDTO;
+import bbt.tao.warehouse.dto.inventory.InventoryDTO;
+import bbt.tao.warehouse.dto.inventory.InventorySummeryDTO;
 import bbt.tao.warehouse.model.InventoryCount;
 import bbt.tao.warehouse.model.enums.InventoryStatus;
 import org.springframework.stereotype.Service;
@@ -12,29 +14,29 @@ import java.util.Optional;
 @Service
 public interface InventoryService {
 
-    List<Inventory> findAllInventories();
+    List<InventoryDTO> findAllInventories();
 
-    Optional<Inventory> findInventoryById(Long id);
+    Optional<InventoryDTO> findInventoryById(Long id);
 
-    List<Inventory> findInventoriesByWarehouse(Long warehouseId);
+    List<InventoryDTO> findInventoriesByWarehouse(Long warehouseId);
 
-    List<Inventory> findInventoriesByStatus(InventoryStatus status);
+    List<InventoryDTO> findInventoriesByStatus(InventoryStatus status);
 
-    List<Inventory> findInventoriesByUser(Long userId);
+    List<InventoryDTO> findInventoriesByUser(Long userId);
 
-    List<Inventory> findInventoriesByNumber(String inventoryNumber);
+    List<InventoryDTO> findInventoriesByNumber(String inventoryNumber);
 
-    List<Inventory> findInventoriesByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    List<InventoryDTO> findInventoriesByDateRange(LocalDateTime startDate, LocalDateTime endDate);
 
-    Inventory createInventory(Inventory inventory);
+    InventoryDTO createInventory(InventoryDTO inventoryDTO);
 
-    Inventory updateInventory(Inventory inventory);
+    InventoryDTO updateInventory(InventoryDTO inventoryDTO);
 
-    Inventory changeStatus(Long id, InventoryStatus status);
+    InventoryDTO changeStatus(Long id, InventoryStatus status);
 
-    List<InventoryCount> findCountsByInventory(Long inventoryId);
+    List<InventoryCountDTO> findCountsByInventory(Long inventoryId);
 
-    List<InventoryCount> findDiscrepancies(Long inventoryId);
+    List<InventoryCountDTO> findDiscrepancies(Long inventoryId);
 
     InventoryCount saveCount(InventoryCount count);
 

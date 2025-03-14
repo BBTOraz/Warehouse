@@ -1,6 +1,7 @@
 package bbt.tao.warehouse.security;
 
 
+import bbt.tao.warehouse.dto.user.UserDTO;
 import bbt.tao.warehouse.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final User user;
+    private final UserDTO user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -53,7 +54,7 @@ public class CustomUserDetails implements UserDetails {
         return user.getIsActive();
     }
 
-    public User getUser() {
+    public UserDTO getUser() {
         return user;
     }
 }

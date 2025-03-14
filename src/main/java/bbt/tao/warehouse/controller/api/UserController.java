@@ -1,6 +1,6 @@
-package bbt.tao.warehouse.controller;
+package bbt.tao.warehouse.controller.api;
 
-import bbt.tao.warehouse.model.User;
+import bbt.tao.warehouse.dto.user.UserDTO;
 import bbt.tao.warehouse.model.enums.RoleType;
 import bbt.tao.warehouse.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,25 +21,25 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
         return userService.findAllUsers();
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Optional<User> getUserById(@PathVariable Long id) {
+    public Optional<UserDTO> getUserById(@PathVariable Long id) {
         return userService.findUserById(id);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public User createUser(@RequestBody User user) {
+    public UserDTO createUser(@RequestBody UserDTO user) {
         return userService.saveUser(user);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public User updateUser(@PathVariable Long id, @RequestBody User user) {
+    public UserDTO updateUser(@PathVariable Long id, @RequestBody UserDTO user) {
         user.setId(id);
         return userService.updateUser(user);
     }

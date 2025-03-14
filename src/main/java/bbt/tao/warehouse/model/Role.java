@@ -28,10 +28,10 @@ public class Role {
     @Column
     private String description;
     
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
     
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
         name = "role_permissions",
         joinColumns = @JoinColumn(name = "role_id"),

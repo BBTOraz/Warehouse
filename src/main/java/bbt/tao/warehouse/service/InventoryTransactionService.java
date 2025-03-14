@@ -1,47 +1,47 @@
 package bbt.tao.warehouse.service;
 
-import bbt.tao.warehouse.exceptions.InsufficientStockException;
-import bbt.tao.warehouse.model.InventoryItem;
-import bbt.tao.warehouse.model.InventoryTransaction;
-import bbt.tao.warehouse.model.enums.TransactionType;
-import org.springframework.stereotype.Service;
+    import bbt.tao.warehouse.dto.inventory.InventoryItemDTO;
+    import bbt.tao.warehouse.dto.inventory.InventoryTransactionDTO;
+    import bbt.tao.warehouse.dto.inventory.InventoryTransactionSummaryDTO;
+    import bbt.tao.warehouse.exceptions.InsufficientStockException;
+    import bbt.tao.warehouse.model.InventoryItem;
+    import bbt.tao.warehouse.model.enums.TransactionType;
+    import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+    import java.time.LocalDateTime;
+    import java.util.List;
+    import java.util.Optional;
 
+    @Service
+    public interface InventoryTransactionService {
 
-@Service
-public interface InventoryTransactionService {
+        List<InventoryTransactionDTO> findAllTransactions();
 
-    List<InventoryTransaction> findAllTransactions();
+        Optional<InventoryTransactionDTO> findTransactionById(Long id);
 
-    Optional<InventoryTransaction> findTransactionById(Long id);
+        List<InventoryTransactionDTO> findTransactionsByProduct(Long productId);
 
-    List<InventoryTransaction> findTransactionsByProduct(Long productId);
+        List<InventoryTransactionDTO> findTransactionsByType(TransactionType transactionType);
 
-    List<InventoryTransaction> findTransactionsByType(TransactionType transactionType);
+        List<InventoryTransactionDTO> findTransactionsBySupplier(Long supplierId);
 
-    List<InventoryTransaction> findTransactionsBySupplier(Long supplierId);
+        List<InventoryTransactionDTO> findTransactionsByCustomer(Long customerId);
 
-    List<InventoryTransaction> findTransactionsByCustomer(Long customerId);
+        List<InventoryTransactionDTO> findTransactionsByDocumentNumber(String documentNumber);
 
-    List<InventoryTransaction> findTransactionsByDocumentNumber(String documentNumber);
+        List<InventoryTransactionDTO> findTransactionsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
 
-    List<InventoryTransaction> findTransactionsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+        List<InventoryTransactionDTO> findTransactionsByLocation(Long locationId);
 
-    List<InventoryTransaction> findTransactionsByLocation(Long locationId);
+        InventoryTransactionDTO createReceivingTransaction(InventoryTransactionDTO transactionDTO);
 
-    InventoryTransaction createReceivingTransaction(InventoryTransaction transaction);
+        InventoryTransactionDTO createShippingTransaction(InventoryTransactionDTO transactionDTO) throws InsufficientStockException;
 
-    InventoryTransaction createShippingTransaction(InventoryTransaction transaction) throws InsufficientStockException;
+        InventoryTransactionDTO createTransferTransaction(InventoryTransactionDTO transactionDTO) throws InsufficientStockException;
 
-    InventoryTransaction createTransferTransaction(InventoryTransaction transaction) throws InsufficientStockException;
+        InventoryTransactionDTO createAdjustmentTransaction(InventoryTransactionDTO transactionDTO) throws InsufficientStockException;
 
-    InventoryTransaction createAdjustmentTransaction(InventoryTransaction transaction) throws InsufficientStockException;
+        void deleteTransaction(Long id);
 
-    void deleteTransaction(Long id);
-
-    List<InventoryItem> getStockLevels(Long productId);
-}
-
+        List<InventoryItemDTO> getStockLevels(Long productId);
+    }

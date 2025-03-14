@@ -1,5 +1,7 @@
 package bbt.tao.warehouse.service.impl;
 
+import bbt.tao.warehouse.dto.product.ProductDTO;
+import bbt.tao.warehouse.mapper.ProductMapper;
 import bbt.tao.warehouse.model.Product;
 import bbt.tao.warehouse.repository.ProductRepository;
 import bbt.tao.warehouse.service.ProductService;
@@ -16,60 +18,96 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
     @Override
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDTO> findAllProducts() {
+        List<Product> products = productRepository.findAll();
+        return productMapper.toDTOList(products);
     }
 
     @Override
-    public List<Product> findAllActiveProducts() {
-        return productRepository.findAllActiveProducts();
+    public List<ProductDTO> findAllActiveProducts() {
+        List<Product> products = productRepository.findByIsActiveTrue();
+        return productMapper.toDTOList(products);
     }
 
     @Override
-    public Optional<Product> findProductById(Long id) {
-        return productRepository.findById(id);
+    public Optional<ProductDTO> findProductById(Long id) {
+        return productRepository.findById(id)
+                .map(productMapper::toDTO);
     }
 
     @Override
-    public Optional<Product> findProductBySku(String sku) {
-        return productRepository.findBySku(sku);
+    public Optional<ProductDTO> findProductBySku(String sku) {
+        return productRepository.findBySku(sku)
+                .map(productMapper::toDTO);
     }
 
     @Override
-    public Optional<Product> findProductByBarcode(String barcode) {
-        return productRepository.findByBarcode(barcode);
+    public Optional<ProductDTO> findProductByBarcode(String barcode) {
+        return productRepository.findByBarcode(barcode)
+                .map(productMapper::toDTO);
     }
 
     @Override
-    public List<Product> findProductsByCategory(Long categoryId) {
-        return productRepository.findByCategory_Id(categoryId);
+    public List<ProductDTO> findProductsByCategory(Long categoryId) {
+        List<Product> products = productRepository.findByCategory_Id(categoryId);
+        return productMapper.toDTOList(products);
     }
 
     @Override
-    public List<Product> findProductsByName(String name) {
-        return productRepository.findByNameContainingIgnoreCase(name);
+    public List<ProductDTO> findProductsByName(String name) {
+        List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
+        return productMapper.toDTOList(products);
     }
 
     @Override
-    public List<Product> findProductsWithLowStock() {
-        return productRepository.findProductsWithLowStock(0.0);
+    public List<ProductDTO> findProductsWithLowStock(Double minStock) {
+        List<Product> products = productRepository.findProductsWithLowStock(minStock);
+        return productMapper.toDTOList(products);
     }
 
     @Override
-    public Product saveProduct(Product product) {
-        LocalDateTime now = LocalDateTime.now();
-        if (product.getId() == null) {
-            product.setCreatedAt(now);
+    public ProductDTO saveProduct(ProductDTO productDTO) {
+        if (productDTO == null) {
+            throw new IllegalArgumentException("Product data cannot be null");
         }
-        product.setUpdatedAt(now);
-        return productRepository.save(product);
+
+        Product product;
+
+        if (productDTO.getId() != null) {
+            // Update existing product
+            Optional<Product> existingProduct = productRepository.findById(productDTO.getId());
+            if (existingProduct.isPresent()) {
+                product = existingProduct.get();
+                productMapper.updateEntityFromDTO(productDTO, product);
+                product.setUpdatedAt(LocalDateTime.now());
+            } else {
+                product = productMapper.toEntity(productDTO);
+                product.setCreatedAt(LocalDateTime.now());
+                product.setUpdatedAt(LocalDateTime.now());
+            }
+        } else {
+            // Create new product
+            product = productMapper.toEntity(productDTO);
+            product.setCreatedAt(LocalDateTime.now());
+            product.setUpdatedAt(LocalDateTime.now());
+
+            // Set default values if not provided
+            if (product.getIsActive() == null) {
+                product.setIsActive(true);
+            }
+        }
+
+        Product savedProduct = productRepository.save(product);
+        return productMapper.toDTO(savedProduct);
     }
 
     @Override
@@ -79,6 +117,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public boolean existsBySku(String sku) {
-        return productRepository.findBySku(sku).isPresent();
+        return productRepository.existsBySku(sku);
     }
 }

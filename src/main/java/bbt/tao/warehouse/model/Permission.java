@@ -28,6 +28,6 @@ public class Permission {
     @Column
     private String description;
     
-    @ManyToMany(mappedBy = "permissions")
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     private List<Role> roles = new ArrayList<>();
 } 

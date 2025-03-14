@@ -1,6 +1,6 @@
 package bbt.tao.warehouse.service;
 
-import bbt.tao.warehouse.model.Product;
+import bbt.tao.warehouse.dto.product.ProductDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,23 +9,23 @@ import java.util.Optional;
 @Service
 public interface ProductService {
 
-    List<Product> findAllProducts();
+    List<ProductDTO> findAllProducts();
 
-    List<Product> findAllActiveProducts();
+    List<ProductDTO> findAllActiveProducts();
 
-    Optional<Product> findProductById(Long id);
+    Optional<ProductDTO> findProductById(Long id);
 
-    Optional<Product> findProductBySku(String sku);
+    Optional<ProductDTO> findProductBySku(String sku);
 
-    Optional<Product> findProductByBarcode(String barcode);
+    Optional<ProductDTO> findProductByBarcode(String barcode);
 
-    List<Product> findProductsByCategory(Long categoryId);
+    List<ProductDTO> findProductsByCategory(Long categoryId);
 
-    List<Product> findProductsByName(String name);
+    List<ProductDTO> findProductsByName(String name);
 
-    List<Product> findProductsWithLowStock();
+    List<ProductDTO> findProductsWithLowStock(Double minStock);
 
-    Product saveProduct(Product product);
+    ProductDTO saveProduct(ProductDTO productDTO);
 
     void deleteProduct(Long id);
 

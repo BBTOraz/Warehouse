@@ -1,25 +1,23 @@
 package bbt.tao.warehouse.service;
 
-import bbt.tao.warehouse.model.Supplier;
-import org.springframework.stereotype.Service;
+import bbt.tao.warehouse.dto.supplier.SupplierDTO;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
 public interface SupplierService {
 
-    List<Supplier> findAllSuppliers();
+    List<SupplierDTO> findAllSuppliers();
 
-    List<Supplier> findAllActiveSuppliers();
+    List<SupplierDTO> findAllActiveSuppliers();
 
-    Optional<Supplier> findSupplierById(Long id);
+    Optional<SupplierDTO> findSupplierById(Long id);
 
-    List<Supplier> findSuppliersByName(String name);
+    List<SupplierDTO> findSuppliersByName(String name);
 
-    Optional<Supplier> findSupplierByTaxId(String taxId);
+    Optional<SupplierDTO> findSupplierByTaxId(String taxId);
 
-    Supplier saveSupplier(Supplier supplier);
+    SupplierDTO saveSupplier(SupplierDTO supplierDTO);
 
     void deleteSupplier(Long id);
 }

@@ -1,12 +1,12 @@
-package bbt.tao.warehouse.controller;
+package bbt.tao.warehouse.controller.api;
 
-import bbt.tao.warehouse.model.Category;
+import bbt.tao.warehouse.dto.category.CategoryDTO;
 import bbt.tao.warehouse.service.CategoryService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -20,35 +20,38 @@ public class CategoryController {
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public List<Category> getAllCategories() {
+    public List<CategoryDTO> getAllCategories() {
         return categoryService.findAllCategories();
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public Optional<Category> getCategoryById(@PathVariable Long id) {
-        return categoryService.findCategoryById(id);
+    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long id) {
+        return categoryService.findCategoryById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-    public Category createCategory(@RequestBody Category category) {
+    public CategoryDTO createCategory(@RequestBody CategoryDTO category) {
         return categoryService.saveCategory(category);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
-    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) {
+    public CategoryDTO updateCategory(@PathVariable Long id, @RequestBody CategoryDTO category) {
         category.setId(id);
         return categoryService.saveCategory(category);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         if (categoryService.hasProducts(id)) {
-            throw new IllegalStateException("Cannot delete category with associated products");
+            return ResponseEntity.badRequest().build();
         }
         categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,6 +1,6 @@
 package bbt.tao.warehouse.service;
 
-import bbt.tao.warehouse.model.Category;
+import bbt.tao.warehouse.dto.category.CategoryDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,15 +9,15 @@ import java.util.Optional;
 @Service
 public interface CategoryService {
 
-    List<Category> findAllCategories();
+    List<CategoryDTO> findAllCategories();
 
-    List<Category> findRootCategories();
+    List<CategoryDTO> findRootCategories();
 
-    List<Category> findSubcategories(Long parentId);
+    List<CategoryDTO> findSubcategories(Long parentId);
 
-    Optional<Category> findCategoryById(Long id);
+    Optional<CategoryDTO> findCategoryById(Long id);
 
-    Category saveCategory(Category category);
+    CategoryDTO saveCategory(CategoryDTO categoryDTO);
 
     void deleteCategory(Long id);
 

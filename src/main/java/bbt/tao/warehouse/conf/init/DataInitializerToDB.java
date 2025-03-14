@@ -23,15 +23,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DataInitializerToDB implements CommandLineRunner {
 
-    // Репозитории для базовых сущностей
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final SupplierRepository supplierRepository;
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
-
-    // Репозитории для остальных сущностей
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final WarehouseRepository warehouseRepository;
@@ -63,8 +60,6 @@ public class DataInitializerToDB implements CommandLineRunner {
         initInventoryCounts();
         initAuditLogs();
     }
-
-    // ------------------ Методы инициализации базовых сущностей ------------------
 
     private Map<PermissionType, Permission> initPermissions() {
         if (permissionRepository.count() == 0) {
