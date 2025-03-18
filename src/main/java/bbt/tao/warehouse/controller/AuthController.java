@@ -15,9 +15,4 @@ public class AuthController {
         return "login";
     }
 
-
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "index";
-    }
 }

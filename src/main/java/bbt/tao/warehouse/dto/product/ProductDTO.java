@@ -24,6 +24,9 @@ public class ProductDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer price;
+
+    private Double currentStock;
+    private String location;
 }
 
 

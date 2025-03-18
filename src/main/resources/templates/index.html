@@ -1,11 +1,466 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Main</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Warehouse Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-HELLO WORLD
+<body class="bg-gray-50 min-h-screen">
+<!-- Боковая панель навигации -->
+<div class="flex h-screen">
+    <aside class="w-64 bg-primary-800 text-white fixed h-full shadow-lg transition-all duration-300" id="sidebar">
+        <div class="p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-warehouse text-2xl"></i>
+                <h1 class="text-xl font-bold">WareFlow</h1>
+            </div>
+            <button class="md:hidden text-white focus:outline-none" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
+        <div class="border-t border-primary-700 my-2"></div>
+
+        <div class="px-4 py-3">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="bg-primary-600 rounded-full h-10 w-10 flex items-center justify-center">
+                    <!-- Отображаем первую букву имени пользователя -->
+                    <span class="font-bold text-lg" th:text="${#strings.substring(username,0,1)}">U</span>
+                </div>
+                <div>
+                    <p class="font-medium text-sm" th:text="${username}">User</p>
+                    <div class="flex items-center text-xs text-primary-300">
+                        <span sec:authorize="hasRole('ADMIN')">Administrator</span>
+                        <span sec:authorize="hasRole('MANAGER')">Manager</span>
+                        <span sec:authorize="hasRole('WAREHOUSE_WORKER')">Worker</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-primary-700 my-2"></div>
+
+        <nav class="mt-2 px-2">
+            <p class="text-xs text-primary-400 uppercase font-bold tracking-wider px-3 mb-2">Main Menu</p>
+
+            <a href="/dashboard" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-primary-900 text-white mb-1 group">
+                <i class="fas fa-th-large w-5 text-center"></i>
+                <span>Overview</span>
+            </a>
+
+            <div sec:authorize="hasRole('ADMIN')">
+                <p class="text-xs text-primary-400 uppercase font-bold tracking-wider px-3 mt-4 mb-2">Administration</p>
+
+                <a href="/dashboard/users" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-users w-5 text-center"></i>
+                    <span>Manage Users</span>
+                </a>
+
+                <a href="/dashboard/audit-logs" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-history w-5 text-center"></i>
+                    <span>Audit Logs</span>
+                </a>
+
+                <a href="/dashboard/settings" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-cogs w-5 text-center"></i>
+                    <span>System Settings</span>
+                </a>
+            </div>
+
+            <!-- MANAGER Menu Items -->
+            <div sec:authorize="hasRole('MANAGER')">
+                <p class="text-xs text-primary-400 uppercase font-bold tracking-wider px-3 mt-4 mb-2">Warehouse</p>
+
+                <a href="/dashboard/inventory" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-boxes w-5 text-center"></i>
+                    <span>Inventory Management</span>
+                </a>
+
+                <a href="/dashboard/transactions" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-exchange-alt w-5 text-center"></i>
+                    <span>Transactions</span>
+                </a>
+
+                <a href="/dashboard/products" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-box w-5 text-center"></i>
+                    <span>Products</span>
+                </a>
+
+                <a href="/dashboard/reports" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-chart-bar w-5 text-center"></i>
+                    <span>Reports</span>
+                </a>
+            </div>
+
+            <!-- WAREHOUSE_WORKER Menu Items -->
+            <div sec:authorize="hasRole('WAREHOUSE_WORKER')">
+                <p class="text-xs text-primary-400 uppercase font-bold tracking-wider px-3 mt-4 mb-2">Operations</p>
+
+                <a href="/dashboard/tasks" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-tasks w-5 text-center"></i>
+                    <span>My Tasks</span>
+                    <!-- Предположим, что количество задач динамически передаётся -->
+                    <span class="ml-auto bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded-full" th:text="${tasks.size()}">0</span>
+                </a>
+
+                <a href="/dashboard/stock" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                    <i class="fas fa-dolly w-5 text-center"></i>
+                    <span>Stock Overview</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="absolute bottom-0 left-0 right-0 p-4">
+            <a href="/logout" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-primary-700 text-primary-100 mb-1 group transition-all">
+                <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Основной контент -->
+    <div class="flex-1 ml-64 transition-all duration-300" id="mainContent">
+        <!-- Header верхнего уровня -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="flex justify-between items-center p-4">
+                <button class="md:hidden text-gray-700 focus:outline-none" id="openSidebar">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+
+                <div class="flex items-center space-x-4 ml-auto">
+                    <div class="relative">
+                        <button class="text-gray-500 hover:text-gray-700 focus:outline-none relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center" th:text="${notificationsCount}">0</span>
+                        </button>
+                    </div>
+
+                    <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                        <i class="fas fa-cog text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Главное содержимое страницы -->
+        <main class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Dashboard Overview</h2>
+                <div class="text-sm text-gray-500" th:text="${#temporals.format(currentDate, 'dd MMMM yyyy')}">14 March 2023</div>
+            </div>
+
+            <!-- Общая статистика -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Общее количество товаров -->
+                <div class="bg-white rounded-lg shadow p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Products</p>
+                            <p class="text-2xl font-bold text-gray-800" th:text="${totalProducts.size()}">0</p>
+                        </div>
+                        <div class="bg-blue-100 rounded-full p-3">
+                            <i class="fas fa-box text-blue-500"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center mt-4">
+                        <span class="text-green-500 text-sm font-medium flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i> 3.2%
+                        </span>
+                        <span class="text-sm text-gray-500 ml-2">since last month</span>
+                    </div>
+                </div>
+
+                <!-- Товары с низким остатком -->
+                <div class="bg-white rounded-lg shadow p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Low Stock Items</p>
+                            <p class="text-2xl font-bold text-gray-800" th:text="${lowStockCount}">0</p>
+                        </div>
+                        <div class="bg-red-100 rounded-full p-3">
+                            <i class="fas fa-exclamation-triangle text-red-500"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center mt-4">
+                        <span class="text-red-500 text-sm font-medium flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i> 5.8%
+                        </span>
+                        <span class="text-sm text-gray-500 ml-2">since last month</span>
+                    </div>
+                </div>
+
+                <!-- Количество ожидающих заказов -->
+                <div class="bg-white rounded-lg shadow p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Pending Orders</p>
+                            <p class="text-2xl font-bold text-gray-800" th:text="${pendingOrdersCount}">0</p>
+                        </div>
+                        <div class="bg-yellow-100 rounded-full p-3">
+                            <i class="fas fa-clock text-yellow-500"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center mt-4">
+                        <span class="text-green-500 text-sm font-medium flex items-center">
+                            <i class="fas fa-arrow-down mr-1"></i> 2.1%
+                        </span>
+                        <span class="text-sm text-gray-500 ml-2">since last week</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Completed Tasks</p>
+                            <p class="text-2xl font-bold text-gray-800" th:text="${completedTasksCount}">0</p>
+                        </div>
+                        <div class="bg-green-100 rounded-full p-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center mt-4">
+                        <span class="text-green-500 text-sm font-medium flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i> 8.5%
+                        </span>
+                        <span class="text-sm text-gray-500 ml-2">since last month</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Панели по ролям -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Большая панель: календарь/график/статистика -->
+                <div class="lg:col-span-8">
+                    <div class="bg-white rounded-lg shadow p-5 h-full">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-gray-800">Inventory Overview</h3>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition">Daily</button>
+                                <button class="px-3 py-1 bg-primary-100 text-primary-800 rounded text-sm font-medium transition">Weekly</button>
+                                <button class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition">Monthly</button>
+                            </div>
+                        </div>
+
+                        <!-- Placeholder for Chart -->
+                        <div class="h-64 bg-gray-50 rounded-lg border border-gray-200 p-4 flex items-center justify-center">
+                            <div class="text-center">
+                                <p class="text-gray-500 mb-2">Inventory Level Chart</p>
+                                <p class="text-sm text-gray-400">Data visualization would be rendered here</p>
+                            </div>
+                        </div>
+
+                        <!-- Inventory Categories -->
+                        <div class="grid grid-cols-3 gap-4 mt-4">
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Electronics</span>
+                                    <span class="text-primary-600 font-semibold">18%</span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-200 rounded-full mt-2">
+                                    <div class="h-full bg-primary-500 rounded-full" style="width: 18%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Furniture</span>
+                                    <span class="text-green-600 font-semibold">42%</span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-200 rounded-full mt-2">
+                                    <div class="h-full bg-green-500 rounded-full" style="width: 42%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-gray-600">Office Supplies</span>
+                                    <span class="text-purple-600 font-semibold">24%</span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-200 rounded-full mt-2">
+                                    <div class="h-full bg-purple-500 rounded-full" style="width: 24%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4">
+                    <div class="bg-white rounded-lg shadow p-5 h-full">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-gray-800">Recent Activity</h3>
+                            <a href="/dashboard/audit-logs" class="text-sm text-primary-600 hover:text-primary-800">View All</a>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div th:each="activity : ${recentActivities}">
+                                <div class="flex items-start">
+                                    <div th:switch="${activity.actionType}">
+                                        <div th:case="LOGIN" class="bg-green-100 rounded-full p-2 mr-3">
+                                            <i class="fas fa-check text-green-500 text-sm"></i>
+                                        </div>
+                                        <div th:case="CREATE" class="bg-blue-100 rounded-full p-2 mr-3">
+                                            <i class="fas fa-truck-loading text-blue-500 text-sm"></i>
+                                        </div>
+                                        <div th:case="*"
+                                             class="bg-yellow-100 rounded-full p-2 mr-3">
+                                            <i class="fas fa-exclamation text-yellow-500 text-sm"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium" th:text="${activity.actionType}">Action</p>
+                                        <p class="text-xs text-gray-500" th:text="'Пользователь с id ' + ${activity.userID} + ', ' + ${activity.actionDetails}">Details</p>
+                                        <p class="text-xs text-gray-400 mt-1" th:text="${#temporals.format(activity.actionTimestamp, 'HH:mm')}">Time</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-700">Low Stock Products</h4>
+                    <a href="/dashboard/products?filter=low-stock" class="text-sm text-primary-600 hover:text-primary-800">View All</a>
+                </div>
+                <div class="bg-gray-50 rounded-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                         <!--   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th> -->
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min. Required</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" th:if="${lowStockProducts != null}">
+                        <tr th:each="prod : ${lowStockProducts}">
+                            <td class="px-6 py-2 text-sm text-gray-500" th:text="${prod.sku}">SKU</td>
+                            <td class="px-6 py-2 text-sm text-gray-900" th:text="${prod.name}">Product Name</td>
+                          <!---  <td class="px-6 py-2 text-sm text-gray-900" th:text="${prod.currentStock}">0</td> -->
+                            <td class="px-6 py-2 text-sm text-gray-500" th:text="${prod.minStockLevel}">0</td>
+                            <td class="px-6 py-2">
+                                <span th:classappend="${prod.minStockLevel} ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" th:text="${prod.minStockLevel} ? 'Critical' : 'Low'">Status</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- WAREHOUSE_WORKER Panel -->
+            <div sec:authorize="hasRole('WAREHOUSE_WORKER')" class="mt-6">
+                <div class="bg-white rounded-lg shadow p-5">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Warehouse Worker Panel</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg p-4 text-white">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold">My Tasks</h4>
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <p class="text-sm opacity-80 mb-4">View and confirm inventory counts, report discrepancies, and update stock levels.</p>
+                            <a href="/dashboard/tasks" class="inline-block px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-sm font-medium transition">
+                                View Tasks <span class="inline-block px-1.5 py-0.5 bg-red-500 text-white text-xs rounded-full ml-1" th:text="${tasks.size()}">0</span>
+                            </a>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg p-4 text-white">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold">Stock Overview</h4>
+                                <i class="fas fa-dolly"></i>
+                            </div>
+                            <p class="text-sm opacity-80 mb-4">Check current warehouse status, including low stock alerts and expired items.</p>
+                            <a href="/dashboard/stock" class="inline-block px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-sm font-medium transition">
+                                View Stock
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Pending Tasks -->
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-semibold text-gray-700">Pending Tasks</h4>
+                            <a href="/dashboard/tasks" class="text-sm text-primary-600 hover:text-primary-800">View All</a>
+                        </div>
+                        <div class="space-y-3">
+                            <div th:each="task : ${tasks}">
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <div class="bg-yellow-200 p-2 rounded-lg mr-3">
+                                                <i class="fas fa-clipboard-list text-yellow-700"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="font-medium text-gray-800" th:text="${task.title}">Task Title</h5>
+                                                <p class="text-sm text-gray-600" th:text="${task.description}">Task description</p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full" th:text="${task.priority}">Priority</span>
+                                    </div>
+                                    <div class="flex justify-end mt-3">
+                                        <button class="bg-primary-100 text-primary-800 hover:bg-primary-200 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+                                            Start Task
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script>
+    document.getElementById('openSidebar').addEventListener('click', function() {
+        document.getElementById('sidebar').style.transform = 'translateX(0)';
+    });
+    document.getElementById('closeSidebar').addEventListener('click', function() {
+        document.getElementById('sidebar').style.transform = 'translateX(-100%)';
+    });
+    function adjustLayout() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        if (window.innerWidth < 768) {
+            sidebar.style.transform = 'translateX(-100%)';
+            mainContent.style.marginLeft = '0';
+        } else {
+            sidebar.style.transform = 'translateX(0)';
+            mainContent.style.marginLeft = '16rem';
+        }
+    }
+    window.addEventListener('load', adjustLayout);
+    window.addEventListener('resize', adjustLayout);
+</script>
 </body>
 </html>

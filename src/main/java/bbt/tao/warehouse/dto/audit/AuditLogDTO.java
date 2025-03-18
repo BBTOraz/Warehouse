@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AuditLogDTO {
     private Long id;
+    private String username;
     private Long userID;
     private String actionType;
     private String entityType;

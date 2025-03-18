@@ -30,4 +30,7 @@ public interface ProductService {
     void deleteProduct(Long id);
 
     boolean existsBySku(String sku);
+
+    long countAllProducts();
+    int getLowStockCount();
 }

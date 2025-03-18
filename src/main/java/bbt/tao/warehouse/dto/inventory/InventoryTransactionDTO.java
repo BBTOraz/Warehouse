@@ -19,8 +19,8 @@ public class InventoryTransactionDTO {
     private Long id;
     private TransactionType transactionType;
     private ProductSummaryDTO product;
-    private LocationSummaryDTO sourceLocation; // может быть null для RECEIVING
-    private LocationSummaryDTO destinationLocation; // может быть null для SHIPPING
+    private LocationDTO sourceLocation;
+    private LocationDTO destinationLocation;
     private Double quantity;
     private String batchNumber;
     private LocalDateTime expirationDate;

@@ -41,4 +41,6 @@ public interface InventoryService {
     InventoryCount saveCount(InventoryCount count);
 
     void deleteInventory(Long id);
+
+    int getPendingOrdersCount();
 }

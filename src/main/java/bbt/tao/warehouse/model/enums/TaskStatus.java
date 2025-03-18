@@ -1,9 +1,10 @@
 package bbt.tao.warehouse.model.enums;
 
 
-public enum InventoryStatus {
-    PLANNED,
+public enum TaskStatus {
+    PENDING,
     IN_PROGRESS,
     COMPLETED,
-    CANCELLED
-} 
+    CANCELED,
+    EXPIRED
+}

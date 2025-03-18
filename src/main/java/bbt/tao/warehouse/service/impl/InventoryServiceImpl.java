@@ -164,4 +164,10 @@ public class InventoryServiceImpl implements InventoryService {
     public void deleteInventory(Long id) {
         inventoryRepository.deleteById(id);
     }
+
+    @Override
+    public int getPendingOrdersCount() {
+        List<InventoryDTO> pendingInventories = findInventoriesByStatus(InventoryStatus.IN_PROGRESS);
+        return pendingInventories.size();
+    }
 }

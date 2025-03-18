@@ -119,4 +119,16 @@ public class ProductServiceImpl implements ProductService {
     public boolean existsBySku(String sku) {
         return productRepository.existsBySku(sku);
     }
+
+    @Override
+    public long countAllProducts() {
+        return productRepository.count();
+    }
+
+    @Override
+    public int getLowStockCount() {
+        // Здесь порог для "низкого остатка" можно задать, например, как 10.0
+        List<Product> lowStockProducts = productRepository.findProductsWithLowStock(1.0);
+        return lowStockProducts.size();
+    }
 }
