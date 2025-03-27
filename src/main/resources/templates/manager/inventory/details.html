@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:x-transition="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.2/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="/inventory" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900">Inventory Details</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/dashboard" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Inventory Header -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" th:text="${inventory.inventoryNumber}">INV-001</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500" th:text="'Warehouse: ' + ${inventory.warehouse != null ? inventory.warehouse.name : 'N/A'}">Warehouse: Main Warehouse</p>
+                </div>
+                <div class="flex space-x-2">
+                    <a th:href="@{/inventory/edit/{id}(id=${inventory.id})}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-edit mr-2"></i> Edit
+                    </a>
+                    <div x-data="{ open: false }">
+                        <button @click="open = !open" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-chevron-down mr-2"></i> Change Status
+                        </button>
+                        <div x-show="open" @click.away="open = false" class="origin-top-right absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none z-10">
+                            <div class="py-1">
+                                <form th:each="status : ${T(bbt.tao.warehouse.model.enums.InventoryStatus).values()}"
+                                      th:action="@{/inventory/{id}/status(id=${inventory.id})}"
+                                      method="post"
+                                      class="block">
+                                    <input type="hidden" name="status" th:value="${status}">
+                                    <button type="submit" class="w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
+                                            th:text="${status}"
+                                            th:disabled="${inventory.status == status}">
+                                        Status
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                      th:classappend="${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).PLANNED} ? 'bg-blue-100 text-blue-800' :
+                                                    (${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).IN_PROGRESS} ? 'bg-yellow-100 text-yellow-800' :
+                                                    (${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).COMPLETED} ? 'bg-green-100 text-green-800' :
+                                                    'bg-red-100 text-red-800'))"
+                                      th:text="${inventory.status}">
+                                    Status
+                                </span>
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Start Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${#temporals.format(inventory.startDate, 'MMM d, yyyy HH:mm')}">Jan 1, 2023 12:00</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">End Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${inventory.endDate != null ? #temporals.format(inventory.endDate, 'MMM d, yyyy HH:mm') : 'Not completed'}">Jan 2, 2023 12:00</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Created By</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${inventory.createdBy != null ? inventory.createdBy.firstName + ' ' + inventory.createdBy.lastName : 'N/A'}">John Doe</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Warehouse Address</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${inventory.warehouse != null ? inventory.warehouse.address : 'N/A'}">123 Main St, City, Country</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div x-data="{ activeTab: 'counts', showCountForm: false }" class="mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button @click="activeTab = 'counts'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'counts', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'counts' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        <i class="fas fa-clipboard-list mr-2"></i> Inventory Counts
+                    </button>
+                    <button @click="activeTab = 'discrepancies'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'discrepancies', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'discrepancies' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> Discrepancies
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Inventory Counts -->
+            <div x-show="activeTab === 'counts'" class="mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Inventory Counts</h3>
+                    <button @click="showCountForm = true" class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-plus mr-2"></i> Add Count
+                    </button>
+                </div>
+
+                <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expected Qty</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual Qty</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch #</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count Date</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Counted By</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="count : ${counts}" th:class="${countStat.odd} ? 'bg-gray-50'">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${count.product != null ? count.product.name : 'N/A'}">Product Name</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${count.location != null ? count.location.code : 'N/A'}">A1-01</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${count.expectedQuantity}">100</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${count.actualQuantity}">95</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                              th:with="variance=${count.actualQuantity - count.expectedQuantity}"
+                                              th:classappend="${variance == 0} ? 'bg-green-100 text-green-800' : (${variance < 0} ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800')"
+                                              th:text="${#numbers.formatDecimal(variance, 1, 2)}">
+                                            -5.00
+                                        </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${count.batchNumber != null ? count.batchNumber : 'N/A'}">BATCH123</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(count.countDate, 'MMM d, yyyy HH:mm')}">Jan 1, 2023 14:30</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${count.countedBy != null ? count.countedBy.firstName + ' ' + count.countedBy.lastName : 'N/A'}">John Doe</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(counts)}">
+                            <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">No count records found</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Discrepancies -->
+            <div x-show="activeTab === 'discrepancies'" class="mt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Inventory Discrepancies</h3>
+                </div>
+
+                <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expected Qty</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual Qty</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variance</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch #</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="discrepancy : ${discrepancies}" th:class="${discrepancyStat.odd} ? 'bg-gray-50'">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${discrepancy.product != null ? discrepancy.product.name : 'N/A'}">Product Name</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${discrepancy.location != null ? discrepancy.location.code : 'N/A'}">A1-01</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${discrepancy.expectedQuantity}">100</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${discrepancy.actualQuantity}">95</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                              th:with="variance=${discrepancy.actualQuantity - discrepancy.expectedQuantity}"
+                                              th:classappend="${variance < 0} ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'"
+                                              th:text="${#numbers.formatDecimal(variance, 1, 2)}">
+                                            -5.00
+                                        </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${discrepancy.batchNumber != null ? discrepancy.batchNumber : 'N/A'}">BATCH123</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(discrepancies)}">
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No discrepancies found</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add Count Form Modal -->
+            <div x-show="showCountForm" class="fixed inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="showCountForm" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                    <div x-show="showCountForm" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                        <div class="absolute top-0 right-0 pt-4 pr-4">
+                            <button @click="showCountForm = false" type="button" class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <span class="sr-only">Close</span>
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Add Inventory Count</h3>
+                                <div class="mt-4">
+                                    <form id="countForm" class="space-y-4">
+                                        <input type="hidden" id="inventoryId" th:value="${inventory.id}">
+
+                                        <div>
+                                            <label for="productId" class="block text-sm font-medium text-gray-700">Product</label>
+                                            <select id="productId" name="productId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <option value="">Select Product</option>
+                                                <!-- Product options would be populated dynamically -->
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label for="locationId" class="block text-sm font-medium text-gray-700">Location</label>
+                                            <select id="locationId" name="locationId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                <option value="">Select Location</option>
+                                                <!-- Location options would be populated dynamically -->
+                                            </select>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label for="expectedQuantity" class="block text-sm font-medium text-gray-700">Expected Quantity</label>
+                                                <input type="number" step="0.01" id="expectedQuantity" name="expectedQuantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            </div>
+
+                                            <div>
+                                                <label for="actualQuantity" class="block text-sm font-medium text-gray-700">Actual Quantity</label>
+                                                <input type="number" step="0.01" id="actualQuantity" name="actualQuantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label for="batchNumber" class="block text-sm font-medium text-gray-700">Batch Number</label>
+                                            <input type="text" id="batchNumber" name="batchNumber" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        </div>
+
+                                        <div>
+                                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                                            <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                            <button type="button" id="saveCount" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">Save Count</button>
+                            <button @click="showCountForm = false" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">Inventory Management System © 2025</p>
+        </div>
+    </footer>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Save count via AJAX
+        document.getElementById('saveCount').addEventListener('click', function() {
+            const form = document.getElementById('countForm');
+            const inventoryId = document.getElementById('inventoryId').value;
+            const productId = document.getElementById('productId').value;
+            const locationId = document.getElementById('locationId').value;
+            const expectedQuantity = document.getElementById('expectedQuantity').value;
+            const actualQuantity = document.getElementById('actualQuantity').value;
+            const batchNumber = document.getElementById('batchNumber').value;
+            const notes = document.getElementById('notes').value;
+
+            // Validation
+            if (!productId || !locationId || !expectedQuantity || !actualQuantity) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Prepare data
+            const data = {
+                inventory: { id: inventoryId },
+                product: { id: productId },
+                location: { id: locationId },
+                expectedQuantity: parseFloat(expectedQuantity),
+                actualQuantity: parseFloat(actualQuantity),
+                batchNumber: batchNumber,
+                countDate: new Date().toISOString(),
+                notes: notes
+            };
+
+            // Send AJAX request
+            fetch('/inventory/api/counts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text) });
+                    }
+                    // Reload page or update UI
+                    window.location.reload();
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        });
+
+        // Load inventory counts via AJAX
+        function loadInventoryCounts() {
+            const inventoryId = document.getElementById('inventoryId').value;
+
+            fetch(`/inventory/api/counts/${inventoryId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Update counts table or other UI elements
+                    console.log('Counts loaded:', data);
+                })
+                .catch(error => {
+                    console.error('Error loading counts:', error);
+                });
+        }
+
+        // Initial load
+        // loadInventoryCounts();
+    });
+</script>
+</body>
+</html>

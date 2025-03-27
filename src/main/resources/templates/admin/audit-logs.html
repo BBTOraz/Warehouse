@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Журнал аудита - Административная панель</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="flex flex-col h-screen">
+    <!-- Навигационная панель -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-bold text-gray-800">Система управления</h1>
+                    </div>
+                    <nav class="ml-6 flex space-x-8">
+                        <a href="/admin/dashboard" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-chart-line mr-2"></i>
+                            Дашборд
+                        </a>
+                        <a href="/admin/audit-logs" class="border-indigo-500 text-indigo-600 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-history mr-2"></i>
+                            Журнал аудита
+                        </a>
+                        <a href="/admin/users" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-users mr-2"></i>
+                            Пользователи
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex items-center">
+                    <div class="ml-3 relative">
+                        <div>
+                            <button type="button" class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button">
+                                <span class="sr-only">Открыть меню пользователя</span>
+                                <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основное содержимое -->
+    <main class="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Заголовок страницы -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">Журнал аудита</h2>
+                <p class="mt-1 text-sm text-gray-500">История всех действий пользователей в системе</p>
+            </div>
+
+            <!-- Фильтры -->
+            <div class="bg-white shadow rounded-lg mb-6 p-4 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Фильтры</h3>
+                <form id="filter-form" action="/admin/audit-logs" method="get" class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 lg:grid-cols-4 gap-x-4">
+                    <!-- Фильтр по типу действия -->
+                    <div>
+                        <label for="actionType" class="block text-sm font-medium text-gray-700">Тип действия</label>
+                        <select id="actionType" name="actionType" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">Все типы</option>
+                            <option th:each="type : ${actionTypes}"
+                                    th:value="${type.name()}"
+                                    th:text="${type.name()}"
+                                    th:selected="${param.actionType != null && param.actionType[0] == type.name()}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Фильтр по пользователю -->
+                    <div>
+                        <label for="userId" class="block text-sm font-medium text-gray-700">Пользователь</label>
+                        <select id="userId" name="userId" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">Все пользователи</option>
+                            <option th:each="user : ${allUsers}"
+                                    th:value="${user.id}"
+                                    th:text="${user.username}"
+                                    th:selected="${param.userId != null && param.userId[0] == user.id}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Фильтр по дате -->
+                    <div>
+                        <label for="start" class="block text-sm font-medium text-gray-700">Дата начала</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="far fa-calendar-alt text-gray-400"></i>
+                            </div>
+                            <input type="text" name="start" id="start"
+                                   th:value="${param.start != null ? param.start[0] : ''}"
+                                   class="datepicker focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="YYYY-MM-DDTHH:MM:SS">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="end" class="block text-sm font-medium text-gray-700">Дата окончания</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="far fa-calendar-alt text-gray-400"></i>
+                            </div>
+                            <input type="text" name="end" id="end"
+                                   th:value="${param.end != null ? param.end[0] : ''}"
+                                   class="datepicker focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="YYYY-MM-DDTHH:MM:SS">
+                        </div>
+                    </div>
+
+                    <!-- Кнопки управления фильтрами -->
+                    <div class="sm:col-span-2 lg:col-span-4 flex flex-col sm:flex-row justify-end gap-2 mt-4">
+                        <button type="button" id="clear-filters" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-times mr-2"></i>
+                            Сбросить фильтры
+                        </button>
+                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-search mr-2"></i>
+                            Применить фильтры
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Результаты -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Результаты</h3>
+                    <div class="flex space-x-2">
+                        <button type="button" id="export-csv" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-file-csv mr-2"></i>
+                            Экспорт CSV
+                        </button>
+                        <button type="button" id="refresh-data" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Обновить
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Индикатор активных фильтров -->
+                <div th:if="${param.actionType != null || param.userId != null || param.start != null || param.end != null}"
+                     class="bg-blue-50 p-4 border-b border-blue-100">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-filter text-blue-400"></i>
+                        </div>
+                        <div class="ml-3 flex-1 md:flex md:justify-between">
+                            <p class="text-sm text-blue-700">
+                                Активны фильтры:
+                                <span th:if="${param.actionType != null}" class="font-medium" th:text="'Тип действия: ' + ${param.actionType[0]}"></span>
+                                <span th:if="${param.userId != null}" class="font-medium" th:text="${param.actionType != null ? ', ' : ''}  + 'Пользователь: ' + ${param.userId[0]}"></span>
+                                <span th:if="${param.start != null && param.end != null}" class="font-medium"
+                                      th:text="${(param.actionType != null || param.userId != null) ? ', ' : ''} + 'Период: ' + ${param.start[0]} + ' - ' + ${param.end[0]}"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Таблица логов -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Пользователь</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действие</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сущность</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Детали</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP адрес</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата и время</th>
+                            <th scope="col" class="relative px-6 py-3">
+                                <span class="sr-only">Действия</span>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="log : ${auditLogs}" th:class="${logStat.odd} ? 'bg-white' : 'bg-gray-50'">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${log.id}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex items-center">
+                                    <div class="text-sm font-medium text-gray-900" th:text="${log.username}"></div>
+                                    <a th:if="${log.userID != null}" th:href="@{/admin/user_details/{id}(id=${log.userID})}"
+                                       class="ml-2 text-indigo-600 hover:text-indigo-900 text-xs">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                                <div class="text-xs text-gray-500" th:text="${'ID: ' + log.userID}"></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span th:class="${'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' +
+                                (log.actionType.name() == 'CREATE' ? 'bg-green-100 text-green-800' :
+                                (log.actionType.name() == 'UPDATE' ? 'bg-blue-100 text-blue-800' :
+                                (log.actionType.name() == 'DELETE' ? 'bg-red-100 text-red-800' :
+                                (log.actionType.name() == 'LOGIN' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'))))}"
+                                      th:text="${log.actionType.name()}">
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div th:text="${log.entityType}"></div>
+                                <div class="text-xs text-gray-500" th:if="${log.entityId != null}" th:text="${'ID: ' + log.entityId}"></div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-sm truncate" th:text="${log.actionDetails}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${log.ipAddress}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(log.actionTimestamp, 'dd.MM.yyyy HH:mm:ss')}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button type="button" th:data-id="${log.id}" class="view-details text-indigo-600 hover:text-indigo-900">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(auditLogs)}">
+                            <td colspan="8" class="px-6 py-10 text-center text-sm text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-search text-gray-400 text-4xl mb-3"></i>
+                                    <span>Нет данных по заданным условиям</span>
+                                    <button type="button" id="reset-all-filters" class="mt-2 text-indigo-600 hover:text-indigo-900">Сбросить все фильтры</button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Пагинация -->
+                <div class="px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Назад
+                        </a>
+                        <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Вперед
+                        </a>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Показано <span class="font-medium">1</span> - <span class="font-medium" th:text="${#lists.size(auditLogs) > 0 ? #lists.size(auditLogs) : 1}"></span>из <span class="font-medium" th:text="${#lists.size(auditLogs)}"></span>записей
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Предыдущая</span>
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                <a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                    1
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Следующая</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Модальное окно с деталями записи -->
+<div id="details-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    <div class="absolute inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4" id="modal-title">Детали записи</h3>
+                            <div class="mt-2">
+                                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                                    <div class="sm:col-span-1">
+                                        <dt class="text-sm font-medium text-gray-500">ID записи</dt>
+                                        <dd class="mt-1 text-sm text-gray-900" id="log-id">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <dt class="text-sm font-medium text-gray-500">Пользователь</dt>
+                                        <dd class="mt-1 text-sm text-gray-900" id="log-username">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <dt class="text-sm font-medium text-gray-500">ID пользователя</dt>
+                                        <dd class="mt-1 text-sm text-gray-900" id="log-user-id">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <dt class="text-sm font-medium text-gray-500">Тип действия</dt>
+                                        <dd class="mt-1 text-sm text-gray-900" id="log-action-type">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <dt class="text-sm font-medium text-gray-500">Тип сущности</dt>
+                                        <dd class="mt-1 text-sm text-gray-900" id="log-entity-type">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <dt class="text-sm font-medium text-gray-500">ID сущности</dt>
+                                        <dd class="mt-1 text-sm text-gray-900" id="log-entity-id">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <dt class="text-sm font-medium text-gray-500">Детали действия</dt>
+                                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap bg-gray-50 p-3 rounded" id="log-details">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <dt class="text-sm font-medium text-gray-500">IP адрес</dt>
+                                        <dd class="mt-1 text-sm text-gray-900" id="log-ip">-</dd>
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <dt class="text-sm font-medium text-gray-500">Дата и время</dt>
+                                        <dd class="mt-1 text-sm text-gray-900" id="log-timestamp">-</dd>
+                                    </div>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button type="button" id="close-modal" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+                        Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация datetime picker
+        flatpickr(".datepicker", {
+            enableTime: true,
+            dateFormat: "Y-m-d\\TH:i:S",
+            time_24hr: true
+        });
+
+        // Обработчик для сброса фильтров
+        document.getElementById('clear-filters').addEventListener('click', function() {
+            document.getElementById('actionType').value = '';
+            document.getElementById('userId').value = '';
+            document.getElementById('start').value = '';
+            document.getElementById('end').value = '';
+        });
+
+        // Обработчик для сброса всех фильтров и перехода на страницу без параметров
+        document.getElementById('reset-all-filters')?.addEventListener('click', function() {
+            window.location.href = '/admin/audit-logs';
+        });
+
+        // Обработчик для обновления данных
+        document.getElementById('refresh-data').addEventListener('click', function() {
+            document.getElementById('filter-form').submit();
+        });
+
+        // Обработчик для экспорта в CSV
+        document.getElementById('export-csv').addEventListener('click', function() {
+            // Собираем текущие параметры фильтрации
+            const actionType = document.getElementById('actionType').value;
+            const userId = document.getElementById('userId').value;
+            const start = document.getElementById('start').value;
+            const end = document.getElementById('end').value;
+
+            // Формируем URL для экспорта с текущими фильтрами
+            let exportUrl = '/admin/audit-logs/export?format=csv';
+            if (actionType) exportUrl += `&actionType=${actionType}`;
+            if (userId) exportUrl += `&userId=${userId}`;
+            if (start) exportUrl += `&start=${start}`;
+            if (end) exportUrl += `&end=${end}`;
+
+            // Переходим по ссылке для скачивания
+            window.location.href = exportUrl;
+        });
+
+        // Открытие модального окна с деталями
+        const modal = document.getElementById('details-modal');
+        const viewButtons = document.querySelectorAll('.view-details');
+
+        viewButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const logId = this.getAttribute('data-id');
+
+                // В реальном приложении здесь был бы AJAX запрос за данными
+                // Для примера заполняем данными из таблицы
+                const row = this.closest('tr');
+                const cells = row.querySelectorAll('td');
+
+                document.getElementById('log-id').textContent = cells[0].textContent;
+                document.getElementById('log-username').textContent = cells[1].querySelector('.text-gray-900').textContent;
+                document.getElementById('log-user-id').textContent = cells[1].querySelector('.text-gray-500').textContent.replace('ID: ', '');
+                document.getElementById('log-action-type').textContent = cells[2].querySelector('span').textContent;
+                document.getElementById('log-entity-type').textContent = cells[3].querySelector('div:first-child').textContent;
+                document.getElementById('log-entity-id').textContent = cells[3].querySelector('.text-gray-500')?.textContent.replace('ID: ', '') || '-';
+                document.getElementById('log-details').textContent = cells[4].textContent;
+                document.getElementById('log-ip').textContent = cells[5].textContent;
+                document.getElementById('log-timestamp').textContent = cells[6].textContent;
+
+                modal.classList.remove('hidden');
+            });
+        });
+
+        // Закрытие модального окна
+        document.getElementById('close-modal').addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+
+
+        modal.querySelector('.absolute.inset-0.bg-gray-500').addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+
+        // Закрытие модального окна при нажатии Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        function validateDateRange() {
+            const startDate = document.getElementById('start').value;
+            const endDate = document.getElementById('end').value;
+
+            if (startDate && endDate) {
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert('Дата начала не может быть больше даты окончания');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        document.getElementById('filter-form').addEventListener('submit', function(event) {
+            if (!validateDateRange()) {
+                event.preventDefault();
+            }
+        });
+
+        // Инициализация выпадающего меню пользователя
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.createElement('div');
+        userMenu.className = 'origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden';
+        userMenu.setAttribute('role', 'menu');
+        userMenu.setAttribute('aria-orientation', 'vertical');
+        userMenu.setAttribute('aria-labelledby', 'user-menu-button');
+        userMenu.setAttribute('tabindex', '-1');
+
+        userMenu.innerHTML = `
+                <a href="/admin/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Профиль</a>
+                <a href="/admin/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Настройки</a>
+                <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Выйти</a>
+            `;
+
+        userMenuButton.parentNode.appendChild(userMenu);
+
+        userMenuButton.addEventListener('click', function() {
+            userMenu.classList.toggle('hidden');
+        });
+
+        // Закрытие меню пользователя при клике вне него
+        document.addEventListener('click', function(event) {
+            if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // Функция для форматирования даты
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU');
+        }
+
+        // Добавление подсветки строк таблицы при наведении
+        const tableRows = document.querySelectorAll('tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseover', function() {
+                this.classList.add('bg-gray-100');
+            });
+
+            row.addEventListener('mouseout', function() {
+                this.classList.remove('bg-gray-100');
+            });
+        });
+    });
+</script>
+</body>
+</html>

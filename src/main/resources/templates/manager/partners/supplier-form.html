@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${supplier.id != null} ? 'Редактирование поставщика | Система управления складом' : 'Создание поставщика | Система управления складом'">Редактирование поставщика | Система управления складом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen">
+    <!-- Заголовок страницы -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-900" th:text="${supplier.id != null} ? 'Редактирование поставщика' : 'Создание поставщика'">Редактирование поставщика</h1>
+            <div class="flex space-x-4">
+                <a href="/partners/suppliers" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i> К списку поставщиков
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Уведомления -->
+    <div th:if="${success}" class="max-w-3xl mx-auto mt-6 px-4 sm:px-6 lg:px-8">
+        <div class="rounded-md bg-green-50 p-4 border border-green-400">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-green-800" th:text="${success}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${error}" class="max-w-3xl mx-auto mt-6 px-4 sm:px-6 lg:px-8">
+        <div class="rounded-md bg-red-50 p-4 border border-red-400">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800" th:text="${error}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основное содержимое -->
+    <main class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 bg-gray-50">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Данные поставщика</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Заполните необходимую информацию о поставщике</p>
+            </div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+                <form th:action="@{/partners/suppliers/edit/{id}(id=${supplier.id})}" th:object="${supplier}" method="post" class="divide-y divide-gray-200">
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div class="py-4 sm:py-5 sm:px-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <label for="name" class="text-sm font-medium text-gray-500 sm:mt-px sm:pt-2">Название компании <span class="text-red-500">*</span></label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            <input type="text" th:field="*{name}" id="name" required
+                                   class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                            <p th:if="${#fields.hasErrors('name')}" class="mt-2 text-sm text-red-600" th:errors="*{name}"></p>
+                        </div>
+                    </div>
+
+                    <div class="py-4 sm:py-5 sm:px-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <label for="taxId" class="text-sm font-medium text-gray-500 sm:mt-px sm:pt-2">ИНН <span class="text-red-500">*</span></label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            <input type="text" th:field="*{taxId}" id="taxId" required
+                                   class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                            <p th:if="${#fields.hasErrors('taxId')}" class="mt-2 text-sm text-red-600" th:errors="*{taxId}"></p>
+                        </div>
+                    </div>
+
+                    <div class="py-4 sm:py-5 sm:px-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <label for="contactPerson" class="text-sm font-medium text-gray-500 sm:mt-px sm:pt-2">Контактное лицо</label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            <input type="text" th:field="*{contactPerson}" id="contactPerson"
+                                   class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                            <p th:if="${#fields.hasErrors('contactPerson')}" class="mt-2 text-sm text-red-600" th:errors="*{contactPerson}"></p>
+                        </div>
+                    </div>
+
+                    <div class="py-4 sm:py-5 sm:px-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <label for="phone" class="text-sm font-medium text-gray-500 sm:mt-px sm:pt-2">Телефон</label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            <input type="tel" th:field="*{phone}" id="phone"
+                                   class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                            <p th:if="${#fields.hasErrors('phone')}" class="mt-2 text-sm text-red-600" th:errors="*{phone}"></p>
+                        </div>
+                    </div>
+
+                    <div class="py-4 sm:py-5 sm:px-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <label for="email" class="text-sm font-medium text-gray-500 sm:mt-px sm:pt-2">Email</label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            <input type="email" th:field="*{email}" id="email"
+                                   class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                            <p th:if="${#fields.hasErrors('email')}" class="mt-2 text-sm text-red-600" th:errors="*{email}"></p>
+                        </div>
+                    </div>
+
+                    <div class="py-4 sm:py-5 sm:px-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <label for="address" class="text-sm font-medium text-gray-500 sm:mt-px sm:pt-2">Адрес</label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            <textarea th:field="*{address}" id="address" rows="3"
+                                      class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"></textarea>
+                            <p th:if="${#fields.hasErrors('address')}" class="mt-2 text-sm text-red-600" th:errors="*{address}"></p>
+                        </div>
+                    </div>
+
+                    <div class="py-4 sm:py-5 sm:px-6 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <label for="isActive" class="text-sm font-medium text-gray-500 sm:mt-px sm:pt-2">Активен</label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" th:field="*{isActive}" id="isActive"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="isActive" class="ml-2 block text-sm text-gray-900">
+                                    Поставщик активен и доступен для операций
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="py-4 sm:py-5 sm:px-6 flex justify-end space-x-3">
+                        <a href="/partners/suppliers" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Отмена
+                        </a>
+                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Добавляем валидацию на стороне клиента
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            const nameField = document.getElementById('name');
+            const taxIdField = document.getElementById('taxId');
+
+            if (!nameField.value.trim()) {
+                event.preventDefault();
+                nameField.classList.add('border-red-500');
+                const errorMsg = document.createElement('p');
+                errorMsg.textContent = 'Название компании обязательно для заполнения';
+                errorMsg.className = 'mt-2 text-sm text-red-600';
+                nameField.parentNode.appendChild(errorMsg);
+            }
+
+            if (!taxIdField.value.trim()) {
+                event.preventDefault();
+                taxIdField.classList.add('border-red-500');
+                const errorMsg = document.createElement('p');
+                errorMsg.textContent = 'ИНН обязателен для заполнения';
+                errorMsg.className = 'mt-2 text-sm text-red-600';
+                taxIdField.parentNode.appendChild(errorMsg);
+            }
+        });
+    });
+</script>
+</body>
+</html>

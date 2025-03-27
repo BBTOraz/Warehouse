@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${inventory.id == null ? 'Create Inventory' : 'Edit Inventory'}">Inventory Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="/inventory" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="text-2xl font-bold text-gray-900" th:text="${inventory.id == null ? 'Create Inventory' : 'Edit Inventory'}">Inventory Form</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/dashboard" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <form th:action="${inventory.id == null ? '/inventory/create' : '/inventory/edit/' + inventory.id}" method="post" th:object="${inventory}" class="space-y-6">
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div>
+                        <label for="inventoryNumber" class="block text-sm font-medium text-gray-700">Inventory Number</label>
+                        <div class="mt-1">
+                            <input type="text" id="inventoryNumber" name="inventoryNumber" th:field="*{inventoryNumber}" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">A unique identifier for this inventory count</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                            <div class="mt-1">
+                                <input type="text" id="startDate" name="startDate" th:field="*{startDate}" required class="datepicker shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                            <div class="mt-1">
+                                <input type="text" id="endDate" name="endDate" th:field="*{endDate}" class="datepicker shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">Optional for planned inventories</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="warehouseId" class="block text-sm font-medium text-gray-700">Warehouse</label>
+                        <div class="mt-1">
+                            <select id="warehouseId" name="warehouse.id" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="">Select Warehouse</option>
+                                <!-- Warehouse options would be populated dynamically -->
+                                <option th:each="wh : ${warehouses}"
+                                        th:value="${wh.id}"
+                                        th:text="${wh.name}"
+                                        th:selected="${inventory.warehouse != null && inventory.warehouse.id == wh.id}">
+                                    Warehouse Name
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <div class="mt-1">
+                            <select id="status" name="status" th:field="*{status}" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option th:each="statusOption : ${T(bbt.tao.warehouse.model.enums.InventoryStatus).values()}"
+                                        th:value="${statusOption}"
+                                        th:text="${statusOption}">
+                                    Status
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-5">
+                        <div class="flex justify-end">
+                            <a th:href="@{/inventory}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Cancel
+                            </a>
+                            <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">Inventory Management System © 2025</p>
+        </div>
+    </footer>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize date pickers
+        flatpickr(".datepicker", {
+            enableTime: true,
+            dateFormat: "d-m-Y H:i",
+            time_24hr: true
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Клиенты | Система управления складом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen">
+    <!-- Заголовок страницы -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-900">Клиенты</h1>
+            <div class="flex space-x-4">
+                <a href="/partners" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i> Назад
+                </a>
+                <a href="/partners/customers/new" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-plus mr-2"></i> Добавить клиента
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основное содержимое -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Уведомления -->
+        <div th:if="${success}" class="rounded-md bg-green-50 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-green-800" th:text="${success}"></p>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${error}" class="rounded-md bg-red-50 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800" th:text="${error}"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Панель поиска и фильтров -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="p-4">
+                <form action="/partners/customers/search" method="get" class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-grow">
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Поиск по названию</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" name="name" id="name" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md" placeholder="Введите название клиента">
+                        </div>
+                    </div>
+                    <div class="self-end">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Найти
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Таблица клиентов -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Клиент</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Контактное лицо</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Контакты</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ИНН</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:if="${#lists.isEmpty(customers)}">
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <div class="flex flex-col items-center justify-center py-6">
+                                <i class="fas fa-users text-gray-300 text-4xl mb-4"></i>
+                                <p>Клиенты не найдены</p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:each="customer : ${customers}" th:class="${!customer.isActive ? 'bg-gray-50' : ''}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                                <span class="text-indigo-700 font-bold"
+                                                      th:text="${#strings.substring(customer.name, 0, 1).toUpperCase()}">A</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900" th:text="${customer.name}">Название клиента</div>
+                                    <div class="text-sm text-gray-500" th:text="${customer.address}">Адрес</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900" th:text="${customer.contactPerson}">Иван Иванов</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900" th:text="${customer.phone}">+7 (123) 456-7890</div>
+                            <div class="text-sm text-gray-500" th:text="${customer.email}">email@example.com</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${customer.taxId}">
+                            1234567890
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                                    <span th:if="${customer.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Активен
+                                    </span>
+                            <span th:unless="${customer.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        Неактивен
+                                    </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-2">
+                                <a th:href="@{/partners/customers/{id}(id=${customer.id})}" class="text-indigo-600 hover:text-indigo-900" title="Просмотр">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:href="@{/partners/customers/edit/{id}(id=${customer.id})}" class="text-amber-600 hover:text-amber-900" title="Редактировать">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form th:action="@{/partners/customers/{id}/delete(id=${customer.id})}" method="post" class="inline" onsubmit="return confirm('Вы уверены, что хотите удалить этого клиента?');">
+                                    <button type="submit" class="text-red-600 hover:text-red-900" title="Удалить">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- JavaScript для интерактивных элементов -->
+<script>
+    // Подтверждение перед удалением
+    document.querySelectorAll('form[onsubmit]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const confirmation = confirm('Вы уверены, что хотите удалить этого клиента?');
+            if (!confirmation) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>

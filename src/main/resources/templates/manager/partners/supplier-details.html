@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${supplier.name} + ' | Система управления складом'">Информация о поставщике | Система управления складом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen">
+    <!-- Заголовок страницы -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-amber-100 rounded-full mr-4">
+                    <i class="fas fa-truck text-amber-600 text-xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900" th:text="${supplier.name}">Название поставщика</h1>
+                <span th:if="${supplier.isActive}" class="ml-4 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Активен</span>
+                <span th:unless="${supplier.isActive}" class="ml-4 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Неактивен</span>
+            </div>
+            <div class="flex space-x-3">
+                <a href="/partners/suppliers" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i> К списку поставщиков
+                </a>
+                <a th:href="@{/partners/suppliers/edit/{id}(id=${supplier.id})}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700">
+                    <i class="fas fa-edit mr-2"></i> Редактировать
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основное содержимое -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Основная информация -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6 bg-gray-50">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Информация о поставщике</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Основные данные и контактная информация</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Название компании</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${supplier.name}">Название поставщика</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">ИНН</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${supplier.taxId}">1234567890</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Контактное лицо</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${supplier.contactPerson ?: '—'}">Иван Иванов</dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Телефон</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a th:if="${supplier.phone}" th:href="'tel:' + ${supplier.phone}" th:text="${supplier.phone}" class="text-amber-600 hover:underline">+7 (123) 456-7890</a>
+                            <span th:unless="${supplier.phone}">—</span>
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Email</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a th:if="${supplier.email}" th:href="'mailto:' + ${supplier.email}" th:text="${supplier.email}" class="text-amber-600 hover:underline">example@email.com</a>
+                            <span th:unless="${supplier.email}">—</span>
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Адрес</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${supplier.address ?: '—'}">Адрес поставщика</dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Статус</dt>
+                        <dd class="mt-1 text-sm sm:mt-0 sm:col-span-2">
+                            <span th:if="${supplier.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Активен</span>
+                            <span th:unless="${supplier.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Неактивен</span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Последние поставки (заглушка) -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+            <div class="px-4 py-5 sm:px-6 bg-gray-50 flex justify-between">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Последние поставки</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">История поставок от данного поставщика</p>
+                </div>
+                <a href="#" class="text-amber-600 hover:text-amber-800 text-sm">Смотреть все</a>
+            </div>
+            <div class="border-t border-gray-200">
+                <div class="p-6 text-center text-gray-500">
+                    <i class="fas fa-box text-4xl mb-3"></i>
+                    <p>История поставок будет отображаться здесь</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="flex justify-between items-center mt-8">
+            <div>
+                <form th:action="@{/partners/suppliers/{id}/delete(id=${supplier.id})}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить этого поставщика?');">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                        <i class="fas fa-trash mr-2"></i> Удалить поставщика
+                    </button>
+                </form>
+            </div>
+            <div class="flex space-x-3">
+                <a href="/partners/suppliers" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Отмена
+                </a>
+                <a th:href="@{/partners/suppliers/edit/{id}(id=${supplier.id})}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700">
+                    <i class="fas fa-edit mr-2"></i> Редактировать
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Подтверждение перед удалением
+    document.querySelectorAll('form[onsubmit]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Вы уверены, что хотите удалить этого поставщика?')) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>

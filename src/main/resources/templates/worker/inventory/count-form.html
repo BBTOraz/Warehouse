@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подсчет товаров | Система управления складом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+    <!-- Заголовок страницы -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Подсчет товаров</h1>
+                <p class="mt-1 text-sm text-gray-500">
+                    Инвентаризация
+                    <span class="font-medium text-indigo-600" th:text="${inventory.inventoryNumber}">INV-001</span>
+                    на складе
+                    <span class="font-medium" th:text="${inventory.warehouse?.name}">Основной склад</span>
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/worker/inventory/{id}(id=${inventory.id})}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i> Назад к инвентаризации
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основное содержимое -->
+    <main class="flex-grow max-w-3xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Форма подсчета -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 bg-gray-50">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Форма подсчета товара</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Укажите фактическое количество товаров</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <form th:action="@{/worker/inventory/{id}/count(id=${inventory.id})}" method="post" class="p-6 space-y-6">
+                    <div>
+                        <label for="productId" class="block text-sm font-medium text-gray-700">Товар <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            <select id="productId" name="productId" required
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                <option value="">Выберите товар</option>
+                                <option th:each="product : ${products}"
+                                        th:value="${product.id}"
+                                        th:text="${product.name + ' (' + product.sku + ')'}">Товар (SKU123)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="locationId" class="block text-sm font-medium text-gray-700">Локация <span class="text-red-500">*</span></label>
+                        <div class="mt-1">
+                            <input type="text" name="location" id="locationId"
+                                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="Например: A-1-2" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                        <div>
+                            <label for="expectedQuantity" class="block text-sm font-medium text-gray-700">Ожидаемое количество</label>
+                            <div class="mt-1">
+                                <input type="number" name="expectedQuantity" id="expectedQuantity" step="0.01" readonly
+                                       class="bg-gray-100 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Заполнится автоматически при выборе товара</p>
+                        </div>
+
+                        <div>
+                            <label for="actualQuantity" class="block text-sm font-medium text-gray-700">Фактическое количество <span class="text-red-500">*</span></label>
+                            <div class="mt-1">
+                                <input type="number" name="actualQuantity" id="actualQuantity" step="0.01" required
+                                       class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="batchNumber" class="block text-sm font-medium text-gray-700">Номер партии</label>
+                        <div class="mt-1">
+                            <input type="text" name="batchNumber" id="batchNumber"
+                                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-700">Примечания</label>
+                        <div class="mt-1">
+                            <textarea id="notes" name="notes" rows="3"
+                                      class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="pt-5 flex justify-end space-x-3">
+                        <a th:href="@{/worker/inventory/{id}(id=${inventory.id})}"
+                           class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Отмена
+                        </a>
+                        <button type="submit"
+                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Сохранить подсчет
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Заглушка для имитации подгрузки ожидаемого количества товара
+    // На реальном проекте здесь будет AJAX-запрос к серверу
+    document.getElementById('productId').addEventListener('change', function() {
+        const productId = this.value;
+        if (productId) {
+            // Имитация запроса к серверу (в реальности будет AJAX)
+            document.getElementById('expectedQuantity').value = Math.floor(Math.random() * 100);
+        } else {
+            document.getElementById('expectedQuantity').value = '';
+        }
+    });
+</script>
+</body>
+</html>

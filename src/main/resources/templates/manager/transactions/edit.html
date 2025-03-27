@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Редактирование транзакции | Склад</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen">
+  <!-- Заголовок -->
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">Редактирование транзакции</h1>
+        <a th:href="@{/transactions}"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <i class="fas fa-arrow-left mr-2"></i> Назад к списку
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Форма редактирования транзакции -->
+  <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-6">
+      <!-- Форма привязана к объекту transactionDTO -->
+      <form th:action="@{/transactions/{id}/update(id=${transactionDTO.id})}" th:object="${transactionDTO}" method="post" class="space-y-6">
+        <!-- Блок ошибок полей -->
+        <div th:if="${#fields.hasErrors('*')}" class="max-w-3xl mx-auto mt-4 px-4 sm:px-6 lg:px-8">
+          <div class="rounded-md bg-red-50 p-4 border border-red-400">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-red-400"></i>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Ошибка валидации:</h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul class="list-disc pl-5 space-y-1">
+                    <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Глобальные ошибки -->
+        <div th:if="${#fields.hasGlobalErrors()}" class="max-w-3xl mx-auto mt-4 px-4 sm:px-6 lg:px-8">
+          <div class="rounded-md bg-red-50 p-4 border border-red-400">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-red-400"></i>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Ошибка валидации:</h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul class="list-disc pl-5 space-y-1">
+                    <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Тип транзакции -->
+        <div class="mb-4">
+          <label for="transactionType" class="block text-sm font-medium text-gray-700 mb-1">Тип транзакции *</label>
+          <select id="transactionType" name="transactionType" th:field="*{transactionType}"
+                  class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  required>
+            <option value="">Выберите тип транзакции</option>
+            <option th:each="type : ${transactionTypes}" th:value="${type}"
+                    th:text="${type == T(bbt.tao.warehouse.model.enums.TransactionType).RECEIVING ? 'Приход' :
+                               (type == T(bbt.tao.warehouse.model.enums.TransactionType).SHIPPING ? 'Отгрузка' :
+                               (type == T(bbt.tao.warehouse.model.enums.TransactionType).TRANSFER ? 'Перемещение' : 'Корректировка'))}">
+            </option>
+          </select>
+          <p class="mt-1 text-xs text-gray-500">
+            <span th:if="${transactionDTO.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).RECEIVING}">Приход товара на склад от поставщика</span>
+            <span th:if="${transactionDTO.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).SHIPPING}">Отгрузка товара со склада клиенту</span>
+            <span th:if="${transactionDTO.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).TRANSFER}">Перемещение товара между складскими локациями</span>
+            <span th:if="${transactionDTO.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).ADJUSTMENT}">Корректировка количества товара на складе</span>
+          </p>
+        </div>
+
+        <!-- Продукт -->
+        <div class="mb-4">
+          <label for="product" class="block text-sm font-medium text-gray-700 mb-1">Продукт *</label>
+          <select id="product" name="product.id"
+                  class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  required>
+            <option value="">Выберите продукт</option>
+            <option th:each="prod : ${products}" th:value="${prod.id}"
+                    th:text="${prod.name + ' (' + prod.sku + ')'}"
+                    th:selected="${transactionDTO.product != null and transactionDTO.product.id == prod.id}">
+            </option>
+          </select>
+        </div>
+
+        <!-- Количество -->
+        <div class="mb-4">
+          <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Количество *</label>
+          <input type="number" id="quantity" name="quantity" th:field="*{quantity}"
+                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                 step="0.01" min="0.01" required>
+        </div>
+
+        <!-- Номер партии -->
+        <div class="mb-4">
+          <label for="batchNumber" class="block text-sm font-medium text-gray-700 mb-1">Номер партии</label>
+          <input type="text" id="batchNumber" name="batchNumber" th:field="*{batchNumber}"
+                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+
+        <!-- Срок годности -->
+        <div class="mb-4">
+          <label for="expirationDate" class="block text-sm font-medium text-gray-700 mb-1">Срок годности</label>
+          <input type="datetime-local" id="expirationDate" name="expirationDate" th:field="*{expirationDate}"
+                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+
+        <!-- Номер документа -->
+        <div class="mb-4">
+          <label for="documentNumber" class="block text-sm font-medium text-gray-700 mb-1">Номер документа *</label>
+          <input type="text" id="documentNumber" name="documentNumber" th:field="*{documentNumber}"
+                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                 required>
+        </div>
+
+        <!-- Исходная локация (блок всегда в DOM, начальное состояние скрыто) -->
+        <div class="mb-4" id="sourceLocationBlock" style="display: none;">
+          <label for="sourceLocation" class="block text-sm font-medium text-gray-700 mb-1">Исходная локация *</label>
+          <select id="sourceLocation" name="sourceLocation.id"
+                  class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="">Выберите локацию</option>
+            <option th:each="loc : ${locations}" th:value="${loc.id}"
+                    th:text="${loc.warehouse.name + ' - ' + loc.code + ' (' + loc.description + ')'}"
+                    th:selected="${transactionDTO.sourceLocation != null and transactionDTO.sourceLocation.id == loc.id}">
+            </option>
+          </select>
+        </div>
+
+        <!-- Целевая локация (блок всегда в DOM, начальное состояние скрыто) -->
+        <div class="mb-4" id="destinationLocationBlock" style="display: none;">
+          <label for="destinationLocation" class="block text-sm font-medium text-gray-700 mb-1">
+            Целевая локация <span class="text-red-500">*</span>
+          </label>
+          <select id="destinationLocation" name="destinationLocation.id"
+                  class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="">Выберите локацию</option>
+            <option th:each="loc : ${locations}" th:value="${loc.id}"
+                    th:text="${loc.warehouse.name + ' - ' + loc.code + ' (' + loc.description + ')'}"
+                    th:selected="${transactionDTO.destinationLocation != null and transactionDTO.destinationLocation.id == loc.id}">
+            </option>
+          </select>
+        </div>
+
+        <!-- Поставщик (блок всегда в DOM, начальное состояние скрыто) -->
+        <div class="mb-4" id="supplierBlock" style="display: none;">
+          <label for="supplier" class="block text-sm font-medium text-gray-700 mb-1">Поставщик *</label>
+          <select id="supplier" name="supplier.id"
+                  class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="">Выберите поставщика</option>
+            <option th:each="sup : ${suppliers}" th:value="${sup.id}"
+                    th:text="${sup.name}"
+                    th:selected="${transactionDTO.supplier != null and transactionDTO.supplier.id == sup.id}">
+            </option>
+          </select>
+        </div>
+
+        <!-- Клиент (блок всегда в DOM, начальное состояние скрыто) -->
+        <div class="mb-4" id="customerBlock" style="display: none;">
+          <label for="customer" class="block text-sm font-medium text-gray-700 mb-1">Клиент *</label>
+          <select id="customer" name="customer.id"
+                  class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="">Выберите клиента</option>
+            <option th:each="cust : ${customers}" th:value="${cust.id}"
+                    th:text="${cust.name}"
+                    th:selected="${transactionDTO.customer != null and transactionDTO.customer.id == cust.id}">
+            </option>
+          </select>
+        </div>
+
+        <!-- Дата транзакции -->
+        <div class="mb-4">
+          <label for="transactionDate" class="block text-sm font-medium text-gray-700 mb-1">Дата транзакции</label>
+          <input type="datetime-local" id="transactionDate" name="transactionDate" th:field="*{transactionDate}"
+                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+
+        <!-- Примечания -->
+        <div class="mb-4">
+          <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Примечания</label>
+          <textarea id="notes" name="notes" th:field="*{notes}" rows="3"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+        </div>
+
+        <!-- Кнопки формы -->
+        <div class="flex justify-end space-x-3">
+          <a th:href="@{/transactions}"
+             class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Отмена
+          </a>
+          <button type="submit"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Сохранить
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Скрипт для управления отображением полей в зависимости от типа транзакции и очистки не нужных данных -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const transactionTypeSelect = document.getElementById('transactionType');
+
+    function updateFieldsVisibility() {
+      const transactionType = transactionTypeSelect.value;
+
+      // Получаем блоки по id
+      const sourceLocationBlock = document.getElementById('sourceLocationBlock');
+      const destLocationBlock = document.getElementById('destinationLocationBlock');
+      const supplierBlock = document.getElementById('supplierBlock');
+      const customerBlock = document.getElementById('customerBlock');
+
+      // Скрываем все блоки и очищаем значения
+      if (sourceLocationBlock) {
+        sourceLocationBlock.style.display = 'none';
+        const sourceInput = document.getElementById('sourceLocation');
+        if (sourceInput) sourceInput.value = "";
+      }
+      if (destLocationBlock) {
+        destLocationBlock.style.display = 'none';
+        const destInput = document.getElementById('destinationLocation');
+        if (destInput) destInput.value = "";
+      }
+      if (supplierBlock) {
+        supplierBlock.style.display = 'none';
+        const supplierInput = document.getElementById('supplier');
+        if (supplierInput) supplierInput.value = "";
+      }
+      if (customerBlock) {
+        customerBlock.style.display = 'none';
+        const customerInput = document.getElementById('customer');
+        if (customerInput) customerInput.value = "";
+      }
+
+      // Показываем нужные блоки
+      if (transactionType === 'RECEIVING') {
+        if (destLocationBlock) destLocationBlock.style.display = 'block';
+        if (supplierBlock) supplierBlock.style.display = 'block';
+      } else if (transactionType === 'SHIPPING') {
+        if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
+        if (customerBlock) customerBlock.style.display = 'block';
+      } else if (transactionType === 'TRANSFER') {
+        if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
+        if (destLocationBlock) destLocationBlock.style.display = 'block';
+      } else if (transactionType === 'ADJUSTMENT') {
+        if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
+      }
+
+      // Обновляем атрибуты required для видимых полей
+      if (sourceLocationBlock) {
+        const sourceInput = document.getElementById('sourceLocation');
+        if (['SHIPPING', 'TRANSFER', 'ADJUSTMENT'].includes(transactionType)) {
+          sourceInput.setAttribute('required', '');
+        } else {
+          sourceInput.removeAttribute('required');
+        }
+      }
+      if (destLocationBlock) {
+        const destInput = document.getElementById('destinationLocation');
+        if (['RECEIVING', 'TRANSFER'].includes(transactionType)) {
+          destInput.setAttribute('required', '');
+        } else {
+          destInput.removeAttribute('required');
+        }
+      }
+      if (supplierBlock) {
+        const supplierInput = document.getElementById('supplier');
+        if (transactionType === 'RECEIVING') {
+          supplierInput.setAttribute('required', '');
+        } else {
+          supplierInput.removeAttribute('required');
+        }
+      }
+      if (customerBlock) {
+        const customerInput = document.getElementById('customer');
+        if (transactionType === 'SHIPPING') {
+          customerInput.setAttribute('required', '');
+        } else {
+          customerInput.removeAttribute('required');
+        }
+      }
+    }
+
+    updateFieldsVisibility();
+
+    transactionTypeSelect.addEventListener('change', function() {
+      this.classList.add('bg-blue-50');
+      setTimeout(() => this.classList.remove('bg-blue-50'), 300);
+      updateFieldsVisibility();
+    });
+  });
+</script>
+</body>
+</html>

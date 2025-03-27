@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900">Inventory Management</h1>
+            <div class="flex items-center space-x-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                        <i class="fas fa-clock mr-2"></i>
+                        <span th:text="${pendingCount} + ' Pending Orders'">0 Pending Orders</span>
+                    </span>
+                <a href="/dashboard" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search Form -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Search Inventory</h2>
+            <form th:action="@{/inventory/search}" method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="inventoryNumber" class="block text-sm font-medium text-gray-700">Inventory Number</label>
+                    <input type="text" id="inventoryNumber" name="inventoryNumber" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="warehouseId" class="block text-sm font-medium text-gray-700">Warehouse</label>
+                    <select id="warehouseId" name="warehouseId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">All Warehouses</option>
+                        <!-- Dynamic warehouse options would go here -->
+                    </select>
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">All Statuses</option>
+                        <option value="PLANNED">Planned</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input type="datetime-local" id="startDate" name="startDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                    <input type="datetime-local" id="endDate" name="endDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-search mr-2"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Inventory List -->
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-900">Inventory List</h2>
+            <a th:href="@{/inventory/create}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus mr-2"></i> New Inventory
+            </a>
+        </div>
+
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inventory Number</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warehouse</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created By</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="inventory : ${inventories}" th:class="${inventoryStat.odd} ? 'bg-gray-50'">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
+                        <a th:href="@{/inventory/{id}(id=${inventory.id})}" class="hover:underline" th:text="${inventory.inventoryNumber}">INV-001</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.warehouse != null ? inventory.warehouse.name : 'N/A'}">Warehouse</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                      th:classappend="${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).PLANNED} ? 'bg-blue-100 text-blue-800' :
+                                                    (${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).IN_PROGRESS} ? 'bg-yellow-100 text-yellow-800' :
+                                                    (${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).COMPLETED} ? 'bg-green-100 text-green-800' :
+                                                    'bg-red-100 text-red-800'))"
+                                      th:text="${inventory.status}">
+                                    Status
+                                </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(inventory.startDate, 'MMM d, yyyy HH:mm')}">Jan 1, 2023 12:00</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.endDate != null ? #temporals.format(inventory.endDate, 'MMM d, yyyy HH:mm') : 'N/A'}">Jan 1, 2023 12:00</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.createdBy != null ? inventory.createdBy.firstName + ' ' + inventory.createdBy.lastName : 'N/A'}">John Doe</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <a th:href="@{/inventory/{id}(id=${inventory.id})}" class="text-indigo-600 hover:text-indigo-900" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a th:href="@{/inventory/edit/{id}(id=${inventory.id})}" class="text-blue-600 hover:text-blue-900" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form th:action="@{/inventory/{id}/delete(id=${inventory.id})}" method="post" class="inline" onsubmit="return confirm('Are you sure you want to delete this inventory?');">
+                                <button type="submit" class="text-red-600 hover:text-red-900" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(inventories)}">
+                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No inventory records found</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">Inventory Management System © 2025</p>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

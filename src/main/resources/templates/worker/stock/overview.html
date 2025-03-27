@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обзор склада | Система управления складом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+    <!-- Заголовок страницы -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-900">Обзор склада</h1>
+            <div class="flex space-x-3">
+                <form action="/worker/stock/search" method="get" class="flex">
+                    <input type="text" name="query" th:value="${searchQuery}" placeholder="Поиск по SKU"
+                           class="rounded-l-md shadow-sm border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-r-md hover:bg-indigo-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основное содержимое -->
+    <main class="flex-grow max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Предупреждение о товарах с низким запасом -->
+        <div th:if="${not #lists.isEmpty(lowStockProducts)}" class="mb-6">
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            <span class="font-medium" th:text="${#lists.size(lowStockProducts)}">5</span>
+                            товаров требуют пополнения запасов
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Товары с низким запасом -->
+        <div th:if="${not #lists.isEmpty(lowStockProducts)}" class="mb-8">
+            <h2 class="text-xl font-semibold text-red-600 mb-4">Товары с низким запасом</h2>
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Товар</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Текущий запас</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Мин. уровень</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Локация</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="product : ${lowStockProducts}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <img th:if="${product.imageUrl}" th:src="${product.imageUrl}" class="h-10 w-10 rounded-full object-cover" alt="Product image">
+                                    <div th:unless="${product.imageUrl}" class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-box text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900" th:text="${product.name}">Товар</div>
+                                    <div class="text-sm text-gray-500" th:text="${product.category?.name}">Категория</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${product.sku}">SKU123</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" th:text="${product.currentStock + ' ' + product.unitOfMeasure}">5 шт</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${product.minStockLevel + ' ' + product.unitOfMeasure}">10 шт</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${product.location}">A-1-2</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a th:href="@{/worker/stock/product/{id}(id=${product.id})}" class="text-indigo-600 hover:text-indigo-900">Детали</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Все товары -->
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Все товары на складе</h2>
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Товар</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Текущий запас</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Локация</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:if="${#lists.isEmpty(products)}">
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        Товары не найдены
+                    </td>
+                </tr>
+                <tr th:each="product : ${products}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <img th:if="${product.imageUrl}" th:src="${product.imageUrl}" class="h-10 w-10 rounded-full object-cover" alt="Product image">
+                                <div th:unless="${product.imageUrl}" class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900" th:text="${product.name}">Товар</div>
+                                <div class="text-sm text-gray-500" th:text="${product.category?.name}">Категория</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${product.sku}">SKU123</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span th:class="${product.currentStock <= product.minStockLevel + 4 ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800' : 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'}"
+                              th:text="${product.currentStock + ' ' + product.unitOfMeasure}">15 шт</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${product.location}">A-1-2</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a th:href="@{/worker/stock/product/{id}(id=${product.id})}" class="text-indigo-600 hover:text-indigo-900">Детали</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

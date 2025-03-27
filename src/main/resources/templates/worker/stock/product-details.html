@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.name} + ' | Система управления складом'">Информация о товаре | Система управления складом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen">
+    <!-- Заголовок страницы -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-indigo-100 rounded-full mr-4">
+                    <i class="fas fa-box text-indigo-600 text-xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900" th:text="${product.name}">Название товара</h1>
+                <span th:if="${product.isActive}" class="ml-4 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Активен</span>
+                <span th:unless="${product.isActive}" class="ml-4 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Неактивен</span>
+            </div>
+            <div class="flex space-x-3">
+                <a href="/worker/stock" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-arrow-left mr-2"></i> К списку товаров
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основное содержимое -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Карточка товара -->
+        <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <!-- Основная информация о товаре -->
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg lg:col-span-2">
+                <div class="px-4 py-5 sm:px-6 bg-gray-50">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Информация о товаре</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Основные данные и характеристики</p>
+                </div>
+                <div class="border-t border-gray-200">
+                    <dl>
+                        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Название</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.name}">Название товара</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">SKU</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.sku}">SKU123</dd>
+                        </div>
+                        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Штрих-код</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.barcode ?: '—'}">1234567890123</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Категория</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.category?.name ?: '—'}">Категория товара</dd>
+                        </div>
+                        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Описание</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.description ?: '—'}">Описание товара</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Единица измерения</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.unitOfMeasure ?: '—'}">шт.</dd>
+                        </div>
+                        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Минимальный запас</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.minStockLevel ?: '—'}">10</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Вес</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.weight != null ? product.weight + ' кг' : '—'}">0.5 кг</dd>
+                        </div>
+                        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Объем</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.volume != null ? product.volume + ' м³' : '—'}">0.01 м³</dd>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Цена</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2" th:text="${product.price != null ? product.price + ' руб.' : '—'}">1000 руб.</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Карточка остатков -->
+            <div class="bg-white shadow sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 bg-gray-50">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Состояние запасов</h3>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-5 space-y-6">
+                    <div class="flex items-center">
+                        <div class="h-16 w-16 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-cubes text-indigo-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5">
+                            <h2 class="text-3xl font-bold text-gray-900" th:text="${product.currentStock ?: '0'}">150</h2>
+                            <p class="text-sm text-gray-500">Текущее количество</p>
+                        </div>
+                    </div>
+
+                    <div th:if="${product.location}" class="border-t border-gray-200 pt-4">
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">Основное местоположение</h4>
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-map-marker-alt text-indigo-600"></i>
+                            </div>
+                            <span class="ml-2 text-sm font-medium" th:text="${product.location}">A-12-3</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-4">
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">Минимальный запас</h4>
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-arrow-down text-indigo-600"></i>
+                            </div>
+                            <span class="ml-2 text-sm font-medium" th:text="${product.minStockLevel ?: '—'}">10</span>
+                        </div>
+                    </div>
+
+                    <div th:if="${product.currentStock != null && product.minStockLevel != null}"
+                         th:with="status=${product.currentStock < product.minStockLevel + 4 ? 'low' : 'ok'}"
+                         class="border-t border-gray-200 pt-4">
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">Статус запасов</h4>
+                        <div class="flex items-center">
+                            <span th:if="${status == 'ok'}" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                <i class="fas fa-check mr-1"></i> Достаточно
+                            </span>
+                            <span th:if="${status == 'low'}" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> Требуется пополнение
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- История движения товара -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 bg-gray-50 flex justify-between items-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">История движения товара</h3>
+                <span th:if="${#lists.isEmpty(movements)}" class="text-sm text-gray-500">Нет данных</span>
+                <span th:unless="${#lists.isEmpty(movements)}" class="text-sm text-gray-500"
+                      th:text="${#lists.size(movements)} + ' операций'">10 операций</span>
+            </div>
+            <div th:if="${#lists.isEmpty(movements)}" class="border-t border-gray-200 p-6 text-center text-gray-500">
+                <i class="fas fa-exchange-alt text-4xl mb-4"></i>
+                <p>История движения товара отсутствует</p>
+            </div>
+            <div th:unless="${#lists.isEmpty(movements)}" class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Тип операции</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Количество</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Откуда</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Куда</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Документ</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Пользователь</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="movement : ${movements}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span th:class="${
+                                (movement.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).RECEIVING ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800' :
+                                (movement.transactionType ==  T(bbt.tao.warehouse.model.enums.TransactionType).SHIPPING ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800' :
+                                (movement.transactionType ==  T(bbt.tao.warehouse.model.enums.TransactionType).TRANSFER ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800' :
+                                (movement.transactionType ==  T(bbt.tao.warehouse.model.enums.TransactionType).ADJUSTMENT ? 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800' :
+                                'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800'))))
+                            }" th:text="${movement.transactionType}">RECEIPT</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(movement.transactionDate, 'dd.MM.yyyy HH:mm')}">01.01.2023 10:15</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${movement.quantity}">10</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${movement.sourceLocation != null ? (movement.sourceLocation.warehouse != null ? movement.sourceLocation.warehouse.name + ' (' + movement.sourceLocation.code + ')' : movement.sourceLocation.code) : '—'}">—</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${movement.destinationLocation != null ? (movement.destinationLocation.warehouse != null ? movement.destinationLocation.warehouse.name + ' (' + movement.destinationLocation.code + ')' : movement.destinationLocation.code) : '—'}">A-1-2</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <a th:if="${movement.documentNumber}" th:href="@{/documents/{type}/{id}(type=${movement.id},id=${movement.documentNumber})}" class="text-indigo-600 hover:text-indigo-900" th:text="${movement.documentNumber}">DOC-001</a>
+                            <span th:unless="${movement.documentNumber}">—</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${movement.user?.username}">user1</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали транзакции | Система управления складом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+    <!-- Header (same as list page) -->
+    <header class="bg-indigo-600 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-white">Система управления складом</h1>
+                <nav class="flex space-x-4">
+                    <a href="/dashboard" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md">Панель</a>
+                    <a href="/inventory" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md">Инвентарь</a>
+                    <a href="/transactions" class="bg-indigo-700 text-white px-3 py-2 rounded-md">Транзакции</a>
+                    <a href="/reports" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md">Отчеты</a>
+                    <a href="/logout" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md">Выйти</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Page Header with Back Button -->
+        <div class="mb-6 flex items-center">
+            <a href="/transactions" class="mr-4 text-indigo-600 hover:text-indigo-800">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h2 class="text-2xl font-bold text-gray-800">Детали транзакции</h2>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Transaction Header -->
+            <div class="border-b border-gray-200 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900">
+                            Транзакция #<span th:text="${transaction.id}">1234</span>
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-500">
+                            Документ: <span th:text="${transaction.documentNumber}">DOC-12345</span>
+                        </p>
+                    </div>
+                    <div>
+                            <span th:if="${transaction.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).RECEIVING}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-arrow-down mr-2"></i> Приход
+                            </span>
+                        <span th:if="${transaction.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).SHIPPING}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-arrow-up mr-2"></i> Отгрузка
+                            </span>
+                        <span th:if="${transaction.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).TRANSFER}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <i class="fas fa-exchange-alt mr-2"></i> Перемещение
+                            </span>
+                        <span th:if="${transaction.transactionType == T(bbt.tao.warehouse.model.enums.TransactionType).ADJUSTMENT}" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-balance-scale mr-2"></i> Корректировка
+                            </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Details -->
+            <div class="px-6 py-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Product Information -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">Информация о товаре</h4>
+                        <div th:if="${transaction.product != null}" class="space-y-2">
+                            <div class="flex items-center">
+                                <img th:if="${transaction.product.imageUrl != null}" th:src="${transaction.product.imageUrl}" alt="Product Image" class="w-16 h-16 object-cover rounded mr-4">
+                                <img th:if="${transaction.product.imageUrl == null}" src="/images/placeholder-image.webp" alt="Product Image" class="w-16 h-16 object-cover rounded mr-4">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900" th:text="${transaction.product.name}">Товар X</p>
+                                    <p class="text-sm text-gray-500" th:text="${transaction.product.sku}">SKU-12345</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-medium">Описание:</span>
+                                    <span th:text="${transaction.product.description}">Описание товара</span>
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-medium">Штрих-код:</span>
+                                    <span th:text="${transaction.product.barcode}">1234567890123</span>
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-medium">Ед. измерения:</span>
+                                    <span th:text="${transaction.product.unitOfMeasure}">шт.</span>
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-medium">Мин. остаток:</span>
+                                    <span th:text="${transaction.product.minStockLevel}">10</span>
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-medium">Вес:</span>
+                                    <span th:text="${transaction.product.weight}">1.5</span> кг
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-medium">Объем:</span>
+                                    <span th:text="${transaction.product.volume}">0.5</span> м³
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-medium">Цена:</span>
+                                    <span th:text="${transaction.product.price}">100</span> ₽
+                                </p>
+                            </div>
+                        </div>
+                        <div th:if="${transaction.product == null}" class="text-center py-6 text-gray-500">
+                            <i class="fas fa-box text-4xl mb-3 block opacity-50"></i>
+                            <p>Информация о товаре отсутствует</p>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Details -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">Детали транзакции</h4>
+                        <dl class="space-y-2">
+                            <div class="flex justify-between">
+                                <dt class="text-sm font-medium text-gray-500">Количество:</dt>
+                                <dd class="text-sm text-gray-900" th:text="${transaction.quantity}">10</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-sm font-medium text-gray-500">Дата транзакции:</dt>
+                                <dd class="text-sm text-gray-900" th:text="${#temporals.format(transaction.transactionDate, 'dd.MM.yyyy HH:mm')}">01.01.2025 12:00</dd>
+                            </div>
+                            <div class="flex justify-between" th:if="${transaction.batchNumber != null}">
+                                <dt class="text-sm font-medium text-gray-500">Номер партии:</dt>
+                                <dd class="text-sm text-gray-900" th:text="${transaction.batchNumber}">BATCH-001</dd>
+                            </div>
+                            <div class="flex justify-between" th:if="${transaction.expirationDate != null}">
+                                <dt class="text-sm font-medium text-gray-500">Срок годности:</dt>
+                                <dd class="text-sm text-gray-900" th:text="${#temporals.format(transaction.expirationDate, 'dd.MM.yyyy')}">01.01.2026</dd>
+                            </div>
+
+                            <!-- Location information -->
+                            <div class="pt-2 border-t border-gray-200 mt-4">
+                                <div class="flex justify-between" th:if="${transaction.sourceLocation != null}">
+                                    <dt class="text-sm font-medium text-gray-500">Откуда:</dt>
+                                    <dd class="text-sm text-gray-900">
+                                        <span th:text="${transaction.sourceLocation.code}">Loc-A</span>
+                                        (<span th:text="${transaction.sourceLocation.warehouse != null ? transaction.sourceLocation.warehouse.name : ''}">Склад 1</span>)
+                                    </dd>
+                                </div>
+                                <div class="flex justify-between" th:if="${transaction.destinationLocation != null}">
+                                    <dt class="text-sm font-medium text-gray-500">Куда:</dt>
+                                    <dd class="text-sm text-gray-900">
+                                        <span th:text="${transaction.destinationLocation.code}">Loc-B</span>
+                                        (<span th:text="${transaction.destinationLocation.warehouse != null ? transaction.destinationLocation.warehouse.name : ''}">Склад 2</span>)
+                                    </dd>
+                                </div>
+                            </div>
+
+                            <!-- Supplier/Customer information -->
+                            <div class="pt-2 border-t border-gray-200 mt-4" th:if="${transaction.supplier != null || transaction.customer != null}">
+                                <div class="flex justify-between" th:if="${transaction.supplier != null}">
+                                    <dt class="text-sm font-medium text-gray-500">Поставщик:</dt>
+                                    <dd class="text-sm text-gray-900" th:text="${transaction.supplier.name}">ООО "Поставщик"</dd>
+                                </div>
+                                <div class="flex justify-between" th:if="${transaction.customer != null}">
+                                    <dt class="text-sm font-medium text-gray-500">Клиент:</dt>
+                                    <dd class="text-sm text-gray-900" th:text="${transaction.customer.name}">ООО "Клиент"</dd>
+                                    <!-- User information -->
+                                    <div class="pt-2 border-t border-gray-200 mt-4" th:if="${transaction.user != null}">
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm font-medium text-gray-500">Создал:</dt>
+                                            <dd class="text-sm text-gray-900" th:text="${transaction.user.firstName + ' ' + transaction.user.lastName}">Иван Иванов</dd>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </dl>
+                    </div>
+
+                <!-- Notes Section -->
+                <div class="mt-6 bg-gray-50 p-4 rounded-lg" th:if="${transaction.notes != null && !transaction.notes.isEmpty()}">
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">Примечания</h4>
+                    <p class="text-sm text-gray-700" th:text="${transaction.notes}">Дополнительная информация о транзакции...</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-6 flex justify-end space-x-3">
+                    <form th:action="@{/transactions/{id}/delete(id=${transaction.id})}" method="post" class="inline">
+                        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded shadow-sm hover:bg-red-700" onclick="return confirm('Вы уверены, что хотите удалить эту транзакцию?')">
+                            <i class="fas fa-trash mr-2"></i> Удалить
+                        </button>
+                    </form>
+                    <a href="/transactions" class="bg-gray-200 text-gray-700 px-4 py-2 rounded shadow-sm hover:bg-gray-300">
+                        Назад к списку
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (same as list page) -->
+    <footer class="bg-white border-t border-gray-200 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-sm text-gray-500">
+                <p>© 2025 Система управления складом. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

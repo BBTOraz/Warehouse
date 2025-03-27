@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Инвентаризации | Система управления складом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+    <!-- Заголовок страницы -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-gray-900">Инвентаризации</h1>
+        </div>
+    </header>
+
+    <!-- Основное содержимое -->
+    <main class="flex-grow max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Список инвентаризаций -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Номер инвентаризации</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Склад</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Период</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Создан</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:if="${#lists.isEmpty(inventories)}">
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        Нет активных инвентаризаций
+                    </td>
+                </tr>
+                <tr th:each="inventory : ${inventories}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${inventory.inventoryNumber}">INV-001</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.warehouse?.name}">Основной склад</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span th:text="${#temporals.format(inventory.startDate, 'dd.MM.yyyy')}">01.01.2023</span> -
+                        <span th:text="${inventory.endDate != null ? #temporals.format(inventory.endDate, 'dd.MM.yyyy') : '—'}">05.01.2023</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span th:class="${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).COMPLETED ?
+                            'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800' :
+                            (inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).IN_PROGRESS ?
+                            'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800' :
+                            'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800')}"
+                              th:text="${inventory.status}">В процессе</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div th:text="${inventory.createdBy?.username}">Иванов Иван</div>
+                        <div class="text-xs" th:text="${#temporals.format(inventory.startDate, 'dd.MM.yyyy HH:mm')}">01.01.2023 09:00</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a th:href="@{/worker/inventory/{id}(id=${inventory.id})}" class="text-indigo-600 hover:text-indigo-900 mr-3">Детали</a>
+                        <a th:if="${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).IN_PROGRESS}"
+                           th:href="@{/worker/inventory/{id}/count(id=${inventory.id})}"
+                           class="text-green-600 hover:text-green-900">Подсчет</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>
