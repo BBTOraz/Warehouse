@@ -25,5 +25,5 @@ public class TaskDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private UserDTO assignedUserDetails; // Details of the assigned user
+    private UserDTO assignedUserDetails;
 }

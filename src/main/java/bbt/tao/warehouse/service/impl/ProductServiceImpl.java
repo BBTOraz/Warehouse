@@ -111,6 +111,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductDTO> findProductsBySkuOrNameOrBarcode(String searchTerm) {
+        return productMapper.toDTOList(productRepository.findProductsBySkuOrNameOrBarcode(searchTerm));
+    }
+
+    @Override
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
@@ -127,7 +132,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public int getLowStockCount() {
-        // Здесь порог для "низкого остатка" можно задать, например, как 10.0
         List<Product> lowStockProducts = productRepository.findProductsWithLowStock(1.0);
         return lowStockProducts.size();
     }

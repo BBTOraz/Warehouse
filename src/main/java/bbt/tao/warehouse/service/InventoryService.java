@@ -3,6 +3,7 @@ package bbt.tao.warehouse.service;
 import bbt.tao.warehouse.dto.inventory.InventoryCountDTO;
 import bbt.tao.warehouse.dto.inventory.InventoryDTO;
 import bbt.tao.warehouse.dto.inventory.InventorySummeryDTO;
+import bbt.tao.warehouse.dto.user.UserDTO;
 import bbt.tao.warehouse.model.InventoryCount;
 import bbt.tao.warehouse.model.enums.InventoryStatus;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public interface InventoryService {
 
     List<InventoryDTO> findInventoriesByDateRange(LocalDateTime startDate, LocalDateTime endDate);
 
-    InventoryDTO createInventory(InventoryDTO inventoryDTO);
+    InventoryDTO createInventory(InventoryDTO inventoryDTO, UserDTO createdBy);
 
     InventoryDTO updateInventory(InventoryDTO inventoryDTO);
 
@@ -37,6 +38,8 @@ public interface InventoryService {
     List<InventoryCountDTO> findCountsByInventory(Long inventoryId);
 
     List<InventoryCountDTO> findDiscrepancies(Long inventoryId);
+
+    List<InventoryCountDTO> findInventoryCountsByUserId(Long id);
 
     InventoryCount saveCount(InventoryCount count);
 

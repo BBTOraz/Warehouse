@@ -271,12 +271,6 @@ public class DataInitializerToDB implements CommandLineRunner {
                     createSupplier("ЭлектроТрейд ЗАО", "Петров Петр Петрович",
                             "+7 (495) 987-65-43", "sales@electrotrade.ru",
                             "г. Санкт-Петербург, пр. Энергетиков, д. 10", "7809876543"),
-                    createSupplier("ТехноИмпорт ООО", "Иванов Иван Иванович",
-                            "+7 (495) 123-45-67", "info@technoimport.ru",
-                            "г. Москва, ул. Поставщиков, д. 15", "7712345678"),
-                    createSupplier("ЭлектроТрейд ЗАО", "Петров Петр Петрович",
-                            "+7 (495) 987-65-43", "sales@electrotrade.ru",
-                            "г. Санкт-Петербург, пр. Энергетиков, д. 10", "7809876543"),
                     createSupplier("ТехноПрогресс ООО", "Сидоров Алексей Петрович",
                             "+7 (495) 555-44-33", "orders@technoprogress.ru",
                             "г. Екатеринбург, ул. Инновационная, д. 42", "6603456789"),
@@ -389,7 +383,7 @@ public class DataInitializerToDB implements CommandLineRunner {
             p1.setCategory(categories.get("Смартфоны"));
             p1.setUnitOfMeasure("шт");
             p1.setMinStockLevel(8.0);
-            p1.setImageUrl("/images/products/iphone14pro.jpg");
+            p1.setImageUrl("/images/placeholder-image.webp");
             p1.setWeight(0.24);
             p1.setVolume(0.0005);
             p1.setIsActive(true);
@@ -405,7 +399,7 @@ public class DataInitializerToDB implements CommandLineRunner {
             p2.setCategory(categories.get("Смартфоны"));
             p2.setUnitOfMeasure("шт");
             p2.setMinStockLevel(5.0);
-            p2.setImageUrl("/images/products/s23ultra.jpg");
+            p2.setImageUrl("/images/placeholder-image.webp");
             p2.setWeight(0.23);
             p2.setVolume(0.0005);
             p2.setIsActive(true);
@@ -421,7 +415,7 @@ public class DataInitializerToDB implements CommandLineRunner {
             p3.setCategory(categories.get("Ноутбуки"));
             p3.setUnitOfMeasure("шт");
             p3.setMinStockLevel(10.0);
-            p3.setImageUrl("/images/products/macbookpro16.jpg");
+            p3.setImageUrl("/images/placeholder-image.webp");
             p3.setWeight(2.15);
             p3.setVolume(0.003);
             p3.setIsActive(true);
@@ -437,7 +431,7 @@ public class DataInitializerToDB implements CommandLineRunner {
             p4.setCategory(categories.get("Холодильники"));
             p4.setUnitOfMeasure("шт");
             p4.setMinStockLevel(2.0);
-            p4.setImageUrl("/images/products/lg-rs26ftih.jpg");
+            p4.setImageUrl("/images/placeholder-image.webp");
             p4.setWeight(110.0);
             p4.setVolume(0.75);
             p4.setIsActive(true);
@@ -453,7 +447,7 @@ public class DataInitializerToDB implements CommandLineRunner {
             p5.setCategory(categories.get("Ноутбуки"));
             p5.setUnitOfMeasure("шт");
             p5.setMinStockLevel(3.0);
-            p5.setImageUrl("/images/products/dell-xps15.jpg");
+            p5.setImageUrl("/images/placeholder-image.webp");
             p5.setWeight(1.8);
             p5.setVolume(0.0025);
             p5.setIsActive(true);
@@ -469,7 +463,7 @@ public class DataInitializerToDB implements CommandLineRunner {
             p6.setCategory(categories.get("Электроника"));
             p6.setUnitOfMeasure("шт");
             p6.setMinStockLevel(5.0);
-            p6.setImageUrl("/images/products/sony-wh1000xm5.jpg");
+            p6.setImageUrl("/images/placeholder-image.webp");
             p6.setWeight(0.25);
             p6.setVolume(0.0007);
             p6.setIsActive(true);
@@ -539,6 +533,7 @@ public class DataInitializerToDB implements CommandLineRunner {
             l4.setWarehouse(elecWarehouse);
             l4.setMaxWeight(300.0);
             l4.setMaxVolume(1.0);
+
 
             locationRepository.saveAll(Arrays.asList(l1, l2, l3, l4));
         }
@@ -887,7 +882,7 @@ public class DataInitializerToDB implements CommandLineRunner {
 
             AuditLog log1 = new AuditLog();
             log1.setUser(admin);
-            log1.setActionType("LOGIN");
+            log1.setActionType(ActionType.LOGIN);
             log1.setEntityType("USER");
             log1.setEntityId(1L);
             log1.setActionDetails("Успешный вход в систему");
@@ -896,7 +891,7 @@ public class DataInitializerToDB implements CommandLineRunner {
 
             AuditLog log2 = new AuditLog();
             log2.setUser(manager);
-            log2.setActionType("LOGIN");
+            log2.setActionType(ActionType.LOGIN);
             log2.setEntityType("USER");
             log2.setEntityId(2L);
             log2.setActionDetails("Успешный вход в систему");
@@ -905,7 +900,7 @@ public class DataInitializerToDB implements CommandLineRunner {
 
             AuditLog log3 = new AuditLog();
             log3.setUser(manager);
-            log3.setActionType("CREATE");
+            log3.setActionType(ActionType.CREATE);
             log3.setEntityType("INVENTORY");
             log3.setEntityId(1L);
             log3.setActionDetails("Создание инвентаризации #ИНВ-2024-001");
@@ -914,7 +909,7 @@ public class DataInitializerToDB implements CommandLineRunner {
 
             AuditLog log4 = new AuditLog();
             log4.setUser(manager);
-            log4.setActionType("UPDATE");
+            log4.setActionType(ActionType.COMPLETE);
             log4.setEntityType("INVENTORY");
             log4.setEntityId(1L);
             log4.setActionDetails("Завершение инвентаризации #ИНВ-2024-001");

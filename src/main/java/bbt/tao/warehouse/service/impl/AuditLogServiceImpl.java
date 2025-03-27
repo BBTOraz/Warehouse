@@ -4,6 +4,7 @@ import bbt.tao.warehouse.dto.audit.AuditLogDTO;
 import bbt.tao.warehouse.mapper.AuditLogMapper;
 import bbt.tao.warehouse.model.AuditLog;
 import bbt.tao.warehouse.model.User;
+import bbt.tao.warehouse.model.enums.ActionType;
 import bbt.tao.warehouse.repository.AuditLogRepository;
 import bbt.tao.warehouse.service.AuditLogService;
 import lombok.AllArgsConstructor;
@@ -36,14 +37,8 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
-    public List<AuditLogDTO> findLogsByAction(String actionType) {
+    public List<AuditLogDTO> findLogsByAction(ActionType actionType) {
         List<AuditLog> logs = auditLogRepository.findRecentActionsByType(actionType, LocalDateTime.now().minusYears(100));
-        return logs.stream().map(auditLogMapper::toDTO).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<AuditLogDTO> findLogsByEntity(String entityType, Long entityId) {
-        List<AuditLog> logs = auditLogRepository.findByActionTypeAndEntityTypeAndEntityId("ALL", entityType, entityId);
         return logs.stream().map(auditLogMapper::toDTO).collect(Collectors.toList());
     }
 
@@ -54,13 +49,13 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     @Override
-    public List<AuditLogDTO> findRecentActionsByType(String actionType, LocalDateTime since) {
+    public List<AuditLogDTO> findRecentActionsByType(ActionType actionType, LocalDateTime since) {
         List<AuditLog> logs = auditLogRepository.findRecentActionsByType(actionType, since);
         return logs.stream().map(auditLogMapper::toDTO).collect(Collectors.toList());
     }
 
     @Override
-    public void logAction(User user, String actionType, String entityType, Long entityId, String actionDetails, String ipAddress) {
+    public void logAction(User user, ActionType actionType, String entityType, Long entityId, String actionDetails, String ipAddress) {
         AuditLog log = new AuditLog();
         log.setUser(user);
         log.setActionType(actionType);

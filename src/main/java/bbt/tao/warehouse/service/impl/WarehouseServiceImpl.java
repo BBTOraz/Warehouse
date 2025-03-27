@@ -106,6 +106,11 @@ package bbt.tao.warehouse.service.impl;
                     .map(locationMapper::toDTO);
         }
 
+        public List<LocationDTO> findAllLocations() {
+            List<Location> locations = locationRepository.findAll();
+            return locationMapper.toDTOList(locations);
+        }
+
         @Override
         public List<LocationDTO> findSuitableLocations(Double weight, Double volume, Long warehouseId) {
             List<Location> locations = locationRepository.findSuitableLocations(weight, volume, warehouseId);

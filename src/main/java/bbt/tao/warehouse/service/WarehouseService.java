@@ -20,6 +20,8 @@ public interface WarehouseService {
 
     WarehouseDTO saveWarehouse(WarehouseDTO warehouseDTO);
 
+    List<LocationDTO> findAllLocations();
+
     void deleteWarehouse(Long id);
 
     List<LocationDTO> findLocationsByWarehouse(Long warehouseId);

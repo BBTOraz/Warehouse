@@ -2,11 +2,13 @@ package bbt.tao.warehouse.controller.api;
 
 import bbt.tao.warehouse.dto.inventory.InventoryCountDTO;
 import bbt.tao.warehouse.dto.inventory.InventoryDTO;
+import bbt.tao.warehouse.security.CustomUserDetails;
 import bbt.tao.warehouse.service.InventoryService;
 import bbt.tao.warehouse.model.enums.InventoryStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,13 +41,13 @@ public class InventoryController {
 
     @PostMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<InventoryDTO> createInventory(@RequestBody InventoryDTO inventoryDTO) {
+    public ResponseEntity<InventoryDTO> createInventory(@RequestBody InventoryDTO inventoryDTO, Authentication authentication) {
         if (inventoryDTO == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Inventory data cannot be empty");
         }
 
-        InventoryDTO createdInventory = inventoryService.createInventory(inventoryDTO);
+        InventoryDTO createdInventory = inventoryService.createInventory(inventoryDTO, ((CustomUserDetails) authentication.getPrincipal()).getUser());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdInventory);
     }
 

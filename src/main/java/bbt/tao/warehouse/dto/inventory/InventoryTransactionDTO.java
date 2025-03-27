@@ -10,6 +10,7 @@ import bbt.tao.warehouse.dto.user.UserDTO;
 import lombok.*;
 import java.time.LocalDateTime;
 import bbt.tao.warehouse.model.enums.TransactionType;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @NoArgsConstructor
@@ -23,11 +24,13 @@ public class InventoryTransactionDTO {
     private LocationDTO destinationLocation;
     private Double quantity;
     private String batchNumber;
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime expirationDate;
     private String documentNumber;
     private SupplierDTO supplier;
     private CustomerDTO customer;
     private UserDTO user;
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime transactionDate;
     private String notes;
 }

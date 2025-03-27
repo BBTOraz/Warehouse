@@ -7,9 +7,7 @@ import bbt.tao.warehouse.dto.product.ProductDTO;
 import bbt.tao.warehouse.dto.task.TaskDTO;
 import bbt.tao.warehouse.dto.user.UserDTO;
 import bbt.tao.warehouse.mapper.ProductMapper;
-import bbt.tao.warehouse.model.enums.InventoryStatus;
-import bbt.tao.warehouse.model.enums.RoleType;
-import bbt.tao.warehouse.model.enums.TransactionType;
+import bbt.tao.warehouse.model.enums.*;
 import bbt.tao.warehouse.repository.InventoryCountRepository;
 import bbt.tao.warehouse.service.*;
 import bbt.tao.warehouse.service.impl.InventoryTransactionServiceImpl;
@@ -70,11 +68,6 @@ public class MainController {
         return "dashboard";
     }
 
-    public String showMyTaskPage(Model model, Authentication authentication){
-        
-        return "myTasks";
-    }
-
     private void addAdminAttributes(Model model) {
         // User management statistics
         List<UserDTO> allUsers = userService.findAllUsers();
@@ -113,18 +106,15 @@ public class MainController {
         model.addAttribute("pendingInventories", pendingInventories);
         model.addAttribute("plannedInventories", inventoryService.findInventoriesByStatus(InventoryStatus.PLANNED));
 
-        // Recent transactions
-        // LocalDateTime weekAgo = LocalDateTime.now().minusDays(7);
-        List<InventoryTransactionDTO> recentTransactions = transactionService.findAllTransactions().stream().limit(5).toList();
+        List<InventoryTransactionDTO> recentTransactions = transactionService.findAllTransactions().stream().sorted(Comparator.comparing(InventoryTransactionDTO::getTransactionDate).reversed()).limit(5).toList();
         model.addAttribute("recentTransactions", recentTransactions);
         System.out.println(recentTransactions.stream().filter(Predicate.not(transaction -> !transaction.getTransactionType().equals(TransactionType.TRANSFER))).toList());
-        // Transaction statistics
+
         model.addAttribute("receivingCount", transactionService.findTransactionsByType(TransactionType.RECEIVING).size());
         model.addAttribute("shippingCount", transactionService.findTransactionsByType(TransactionType.SHIPPING).size());
         model.addAttribute("transferCount", transactionService.findTransactionsByType(TransactionType.TRANSFER).size());
         model.addAttribute("adjustmentCount", transactionService.findTransactionsByType(TransactionType.ADJUSTMENT).size());
 
-        // Business partners
         model.addAttribute("activeSuppliers", supplierService.findAllActiveSuppliers().size());
         model.addAttribute("activeCustomers", customerService.findAllActiveCustomers().size());
         model.addAttribute("warehousesCount", warehouseService.findAllActiveWarehouses().size());
@@ -135,9 +125,8 @@ public class MainController {
         String username = (String) model.getAttribute("username");
         model.addAttribute("pendingTasksCount", taskService.getPendingTasksForUser(username).size());
 
-        // Stock information
         model.addAttribute("lowStockProducts", inventoryCountRepository.findAll().stream()
-                .filter(inventoryCount -> inventoryCount.getActualQuantity() < inventoryCount.getProduct().getMinStockLevel() * 2.0)
+                .filter(inventoryCount -> inventoryCount.getActualQuantity() < inventoryCount.getProduct().getMinStockLevel() + 4.0)
                 .map(inventoryCount -> {
                     ProductDTO productDTO = productMapper.toDTO(inventoryCount.getProduct());
                     productDTO.setCurrentStock(inventoryCount.getActualQuantity());
@@ -156,10 +145,5 @@ public class MainController {
 
         // Recently completed tasks
         model.addAttribute("completedTasks", taskService.getCompletedTasksCount(username));
-    }
-
-    @GetMapping("/dashboard/test")
-    public String test() {
-        return "dashboard";
     }
 }

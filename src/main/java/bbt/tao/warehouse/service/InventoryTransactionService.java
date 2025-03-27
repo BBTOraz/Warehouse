@@ -44,4 +44,8 @@ package bbt.tao.warehouse.service;
         void deleteTransaction(Long id);
 
         List<InventoryItemDTO> getStockLevels(Long productId);
+
+        List<InventoryTransactionDTO> findTransactionsByUser(Long userId);
+
+        InventoryTransactionDTO updateTransaction(Long id, InventoryTransactionDTO transactionDTO) throws InsufficientStockException;
     }

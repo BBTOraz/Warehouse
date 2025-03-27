@@ -47,6 +47,9 @@ public class TaskServiceImpl implements TaskService {
         if (taskDTO.getId() == null) {
             taskDTO.setCreatedAt(LocalDateTime.now());
         }
+        taskDTO.setStatus(TaskStatus.PENDING);
+        taskDTO.setAssignedUser(taskDTO.getAssignedUserDetails().getId());
+        System.out.println(taskDTO);
         Task task = taskMapper.toEntity(taskDTO);
         task.setUpdatedAt(LocalDateTime.now());
         Task savedTask = taskRepository.save(task);
@@ -65,7 +68,6 @@ public class TaskServiceImpl implements TaskService {
         }
         Task existingTask = taskRepository.findById(taskDTO.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Task not found with id: " + taskDTO.getId()));
-        // Обновляем поля сущности на основе DTO
         taskMapper.updateEntityFromDTO(taskDTO, existingTask);
         existingTask.setUpdatedAt(LocalDateTime.now());
         Task updatedTask = taskRepository.save(existingTask);
@@ -76,4 +78,23 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(Long id) {
         taskRepository.deleteById(id);
     }
+
+    @Override
+    public List<TaskDTO> findAllTasks() {
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.stream().map(taskMapper::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TaskDTO> findAllDetailedTasks() {
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.stream().map(taskMapper::toDetailsDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TaskDTO> findTasksByAssignee(Long userId) {
+       List<Task> tasks = taskRepository.findByAssignedUser_Id(userId);
+        return tasks.stream().map(taskMapper::toDTO).collect(Collectors.toList());
+    }
+
 }

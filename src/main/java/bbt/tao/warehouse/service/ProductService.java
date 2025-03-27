@@ -19,6 +19,8 @@ public interface ProductService {
 
     Optional<ProductDTO> findProductByBarcode(String barcode);
 
+    List<ProductDTO> findProductsBySkuOrNameOrBarcode(String searchTerm);
+
     List<ProductDTO> findProductsByCategory(Long categoryId);
 
     List<ProductDTO> findProductsByName(String name);

@@ -1,5 +1,6 @@
 package bbt.tao.warehouse.model;
 
+import bbt.tao.warehouse.model.enums.ActionType;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -16,9 +17,10 @@ public class AuditLog {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-    
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "action_type", nullable = false)
-    private String actionType;
+    private ActionType actionType;
     
     @Column(name = "entity_type")
     private String entityType;

@@ -24,4 +24,10 @@ public interface TaskService {
 
     // Удалить задачу по id
     void deleteTask(Long id);
+
+    List<TaskDTO> findAllTasks();
+
+    List<TaskDTO> findAllDetailedTasks();
+
+    List<TaskDTO> findTasksByAssignee(Long userId);
 }

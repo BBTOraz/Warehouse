@@ -16,8 +16,7 @@ public interface InventoryMapper {
 
     List<InventoryDTO> toDTOList(List<Inventory> inventories);
 
-    @Mapping(target = "warehouse", ignore = true)
-    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdBy", source = "createdBy")
     Inventory toEntity(InventoryDTO dto);
 
     void updateEntityFromDTO(InventoryDTO dto, @MappingTarget Inventory inventory);

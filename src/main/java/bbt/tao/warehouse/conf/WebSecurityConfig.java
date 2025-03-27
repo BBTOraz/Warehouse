@@ -4,6 +4,7 @@ import bbt.tao.warehouse.dto.audit.AuditLogDTO;
 import bbt.tao.warehouse.mapper.UserMapper;
 import bbt.tao.warehouse.model.AuditLog;
 import bbt.tao.warehouse.model.User;
+import bbt.tao.warehouse.model.enums.ActionType;
 import bbt.tao.warehouse.security.service.CustomUserDetailsServiceImpl;
 import bbt.tao.warehouse.service.impl.AuditLogServiceImpl;
 import bbt.tao.warehouse.service.impl.UserServiceImpl;
@@ -11,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +23,7 @@ import java.time.LocalDateTime;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
@@ -47,7 +51,7 @@ public class WebSecurityConfig {
                                         User user = userMapper.toEntity(userDTO);
                                         String ipAddress = getClientIpAddress(request);
 
-                                        auditLogService.logAction(user, "LOGIN", "USER", user.getId(), "ВХОД В СИСТЕМУ", ipAddress);
+                                        auditLogService.logAction(user, ActionType.LOGIN, "USER", user.getId(), "ВХОД В СИСТЕМУ", ipAddress);
                                         response.sendRedirect("/dashboard");
                                     }
                                 }))

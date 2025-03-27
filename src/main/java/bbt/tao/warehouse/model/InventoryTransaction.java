@@ -17,7 +17,7 @@ public class InventoryTransaction {
     
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false)
-    private TransactionType transactionType; // RECEIVING, SHIPPING, TRANSFER, ADJUSTMENT
+    private TransactionType transactionType;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)

@@ -29,4 +29,6 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
 
     @Query("SELECT t FROM InventoryTransaction t WHERE t.sourceLocation.id = :locationId OR t.destinationLocation.id = :locationId")
     List<InventoryTransaction> findByLocation(@Param("locationId") Long locationId);
+
+    List<InventoryTransaction> findByUser_Id(Long userId);
 }

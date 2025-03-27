@@ -1,6 +1,7 @@
 package bbt.tao.warehouse.controller.api;
 
 import bbt.tao.warehouse.dto.audit.AuditLogDTO;
+import bbt.tao.warehouse.model.enums.ActionType;
 import bbt.tao.warehouse.service.AuditLogService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class AuditLogController {
 
     @GetMapping("/action/{actionType}")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<AuditLogDTO> getAuditLogsByAction(@PathVariable String actionType) {
+    public List<AuditLogDTO> getAuditLogsByAction(@PathVariable ActionType actionType) {
         return auditLogService.findLogsByAction(actionType);
     }
 

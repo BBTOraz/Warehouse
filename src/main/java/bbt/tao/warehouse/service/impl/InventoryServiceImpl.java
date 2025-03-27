@@ -2,14 +2,17 @@ package bbt.tao.warehouse.service.impl;
 
 import bbt.tao.warehouse.dto.inventory.InventoryCountDTO;
 import bbt.tao.warehouse.dto.inventory.InventoryDTO;
+import bbt.tao.warehouse.dto.user.UserDTO;
 import bbt.tao.warehouse.mapper.InventoryCountMapper;
 import bbt.tao.warehouse.mapper.InventoryMapper;
+import bbt.tao.warehouse.mapper.WarehouseMapper;
 import bbt.tao.warehouse.model.InventoryCount;
 import bbt.tao.warehouse.model.Inventory;
 import bbt.tao.warehouse.model.enums.InventoryStatus;
 import bbt.tao.warehouse.repository.InventoryCountRepository;
 import bbt.tao.warehouse.repository.InventoryRepository;
 import bbt.tao.warehouse.service.InventoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 public class InventoryServiceImpl implements InventoryService {
@@ -27,16 +31,18 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryCountRepository inventoryCountRepository;
     private final InventoryMapper inventoryMapper;
     private final InventoryCountMapper inventoryCountMapper;
+    private final WarehouseMapper warehouseMapper;
 
     @Autowired
     public InventoryServiceImpl(
             InventoryRepository inventoryRepository,
             InventoryCountRepository inventoryCountRepository,
-            InventoryMapper inventoryMapper, InventoryCountMapper inventoryCountMapper) {
+            InventoryMapper inventoryMapper, InventoryCountMapper inventoryCountMapper, WarehouseMapper warehouseMapper) {
         this.inventoryRepository = inventoryRepository;
         this.inventoryCountRepository = inventoryCountRepository;
         this.inventoryMapper = inventoryMapper;
         this.inventoryCountMapper = inventoryCountMapper;
+        this.warehouseMapper = warehouseMapper;
     }
 
     @Override
@@ -94,10 +100,14 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryDTO createInventory(InventoryDTO inventoryDTO) {
+    public InventoryDTO createInventory(InventoryDTO inventoryDTO, UserDTO createdBy) {
+        inventoryDTO.setCreatedBy(createdBy);
         Inventory inventory = inventoryMapper.toEntity(inventoryDTO);
-        inventory.setStatus(InventoryStatus.PLANNED);
-        inventory.setStartDate(LocalDateTime.now());
+        log.info(inventory.toString());
+        if (inventoryDTO.getStatus() == null && inventoryDTO.getStartDate() == null) {
+            inventory.setStatus(InventoryStatus.PLANNED);
+            inventory.setStartDate(LocalDateTime.now());
+        }
         Inventory savedInventory = inventoryRepository.save(inventory);
         return inventoryMapper.toDTO(savedInventory);
     }
@@ -111,13 +121,14 @@ public class InventoryServiceImpl implements InventoryService {
         Inventory existingInventory = inventoryRepository.findById(inventoryDTO.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Inventory not found with id: " + inventoryDTO.getId()));
 
-        // We need to manually map fields since MapStruct's toEntity ignores warehouse and createdBy
+
         existingInventory.setInventoryNumber(inventoryDTO.getInventoryNumber());
         existingInventory.setStatus(inventoryDTO.getStatus());
+        existingInventory.setWarehouse(warehouseMapper.toEntity(inventoryDTO.getWarehouse()));
         existingInventory.setStartDate(inventoryDTO.getStartDate());
         existingInventory.setEndDate(inventoryDTO.getEndDate());
-
         Inventory updatedInventory = inventoryRepository.save(existingInventory);
+
         return inventoryMapper.toDTO(updatedInventory);
     }
 
@@ -151,6 +162,13 @@ public class InventoryServiceImpl implements InventoryService {
 
         return counts.stream()
                 .map(inventoryCountMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<InventoryCountDTO> findInventoryCountsByUserId(Long userId) {
+        List<InventoryCount> counts = inventoryCountRepository.findByCountedBy_Id(userId);
+        return counts.stream().map(inventoryCountMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
