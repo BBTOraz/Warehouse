@@ -1,25 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${customer.id != null} ? 'Редактирование клиента | Система управления складом' : 'Создание клиента | Система управления складом'">Редактирование клиента | Система управления складом</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
-<div class="min-h-screen">
-    <!-- Заголовок страницы -->
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-gray-900" th:text="${customer.id != null} ? 'Редактирование клиента' : 'Создание клиента'">Редактирование клиента</h1>
-            <div class="flex space-x-4">
-                <a href="/partners/customers" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                    <i class="fas fa-arrow-left mr-2"></i> К списку клиентов
-                </a>
-            </div>
-        </div>
-    </header>
+<div layout:fragment="content" class="min-h-screen">
 
     <!-- Уведомления -->
     <div th:if="${success}" class="max-w-3xl mx-auto mt-6 px-4 sm:px-6 lg:px-8">
@@ -138,35 +125,34 @@
             </div>
         </div>
     </main>
-</div>
+    <script>
+        // Добавляем валидацию на стороне клиента
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                const nameField = document.getElementById('name');
+                const taxIdField = document.getElementById('taxId');
 
-<script>
-    // Добавляем валидацию на стороне клиента
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(event) {
-            const nameField = document.getElementById('name');
-            const taxIdField = document.getElementById('taxId');
+                if (!nameField.value.trim()) {
+                    event.preventDefault();
+                    nameField.classList.add('border-red-500');
+                    const errorMsg = document.createElement('p');
+                    errorMsg.textContent = 'Название компании обязательно для заполнения';
+                    errorMsg.className = 'mt-2 text-sm text-red-600';
+                    nameField.parentNode.appendChild(errorMsg);
+                }
 
-            if (!nameField.value.trim()) {
-                event.preventDefault();
-                nameField.classList.add('border-red-500');
-                const errorMsg = document.createElement('p');
-                errorMsg.textContent = 'Название компании обязательно для заполнения';
-                errorMsg.className = 'mt-2 text-sm text-red-600';
-                nameField.parentNode.appendChild(errorMsg);
-            }
-
-            if (!taxIdField.value.trim()) {
-                event.preventDefault();
-                taxIdField.classList.add('border-red-500');
-                const errorMsg = document.createElement('p');
-                errorMsg.textContent = 'ИНН обязателен для заполнения';
-                errorMsg.className = 'mt-2 text-sm text-red-600';
-                taxIdField.parentNode.appendChild(errorMsg);
-            }
+                if (!taxIdField.value.trim()) {
+                    event.preventDefault();
+                    taxIdField.classList.add('border-red-500');
+                    const errorMsg = document.createElement('p');
+                    errorMsg.textContent = 'ИНН обязателен для заполнения';
+                    errorMsg.className = 'mt-2 text-sm text-red-600';
+                    taxIdField.parentNode.appendChild(errorMsg);
+                }
+            });
         });
-    });
-</script>
+    </script>
+</div>
 </body>
 </html>

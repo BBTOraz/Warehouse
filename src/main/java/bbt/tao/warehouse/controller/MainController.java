@@ -49,7 +49,7 @@ public class MainController {
 
         // Add common attributes for all users
         List<TaskDTO> pendingTasks = taskService.getPendingTasksForUser(username);
-        model.addAttribute("tasks", pendingTasks);
+        model.addAttribute("taskPending", pendingTasks);
         model.addAttribute("completedTasksCount", taskService.getCompletedTasksCount(username));
 
         // Role-specific attributes

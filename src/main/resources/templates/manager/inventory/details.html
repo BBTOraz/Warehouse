@@ -1,31 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:x-transition="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:x-transition="http://www.w3.org/1999/xhtml" lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Details</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.2/cdn.min.js" defer></script>
 </head>
 <body class="bg-gray-50">
-<div class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <a href="/inventory" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <h1 class="text-2xl font-bold text-gray-900">Inventory Details</h1>
-            </div>
-            <div class="flex items-center space-x-4">
-                <a href="/dashboard" class="text-gray-600 hover:text-gray-900">
-                    <i class="fas fa-home"></i>
-                </a>
-            </div>
-        </div>
-    </header>
+<div layout:fragment="content" class="min-h-screen flex flex-col">
 
     <!-- Main Content -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -279,82 +262,82 @@
             <p class="text-center text-sm text-gray-500">Inventory Management System © 2025</p>
         </div>
     </footer>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Save count via AJAX
-        document.getElementById('saveCount').addEventListener('click', function() {
-            const form = document.getElementById('countForm');
-            const inventoryId = document.getElementById('inventoryId').value;
-            const productId = document.getElementById('productId').value;
-            const locationId = document.getElementById('locationId').value;
-            const expectedQuantity = document.getElementById('expectedQuantity').value;
-            const actualQuantity = document.getElementById('actualQuantity').value;
-            const batchNumber = document.getElementById('batchNumber').value;
-            const notes = document.getElementById('notes').value;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Save count via AJAX
+            document.getElementById('saveCount').addEventListener('click', function() {
+                const form = document.getElementById('countForm');
+                const inventoryId = document.getElementById('inventoryId').value;
+                const productId = document.getElementById('productId').value;
+                const locationId = document.getElementById('locationId').value;
+                const expectedQuantity = document.getElementById('expectedQuantity').value;
+                const actualQuantity = document.getElementById('actualQuantity').value;
+                const batchNumber = document.getElementById('batchNumber').value;
+                const notes = document.getElementById('notes').value;
 
-            // Validation
-            if (!productId || !locationId || !expectedQuantity || !actualQuantity) {
-                alert('Please fill in all required fields');
-                return;
+                // Validation
+                if (!productId || !locationId || !expectedQuantity || !actualQuantity) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                // Prepare data
+                const data = {
+                    inventory: { id: inventoryId },
+                    product: { id: productId },
+                    location: { id: locationId },
+                    expectedQuantity: parseFloat(expectedQuantity),
+                    actualQuantity: parseFloat(actualQuantity),
+                    batchNumber: batchNumber,
+                    countDate: new Date().toISOString(),
+                    notes: notes
+                };
+
+                // Send AJAX request
+                fetch('/inventory/api/counts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => { throw new Error(text) });
+                        }
+                        // Reload page or update UI
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                    });
+            });
+
+            // Load inventory counts via AJAX
+            function loadInventoryCounts() {
+                const inventoryId = document.getElementById('inventoryId').value;
+
+                fetch(`/inventory/api/counts/${inventoryId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update counts table or other UI elements
+                        console.log('Counts loaded:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error loading counts:', error);
+                    });
             }
 
-            // Prepare data
-            const data = {
-                inventory: { id: inventoryId },
-                product: { id: productId },
-                location: { id: locationId },
-                expectedQuantity: parseFloat(expectedQuantity),
-                actualQuantity: parseFloat(actualQuantity),
-                batchNumber: batchNumber,
-                countDate: new Date().toISOString(),
-                notes: notes
-            };
-
-            // Send AJAX request
-            fetch('/inventory/api/counts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => { throw new Error(text) });
-                    }
-                    // Reload page or update UI
-                    window.location.reload();
-                })
-                .catch(error => {
-                    alert('Error: ' + error.message);
-                });
+            // Initial load
+            // loadInventoryCounts();
         });
-
-        // Load inventory counts via AJAX
-        function loadInventoryCounts() {
-            const inventoryId = document.getElementById('inventoryId').value;
-
-            fetch(`/inventory/api/counts/${inventoryId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Update counts table or other UI elements
-                    console.log('Counts loaded:', data);
-                })
-                .catch(error => {
-                    console.error('Error loading counts:', error);
-                });
-        }
-
-        // Initial load
-        // loadInventoryCounts();
-    });
-</script>
+    </script>
+</div>
 </body>
 </html>

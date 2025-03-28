@@ -1,0 +1,246 @@
+<!-- file: src/main/resources/templates/fragments/layout.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:fragment="head">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              900: '#0c4a6e',
+            },
+            secondary: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              500: '#64748b',
+              700: '#334155',
+              900: '#0f172a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Стили из dashboard.html (или ваш tailwind.config) */
+    .animate-pulse-slow {
+      animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% {opacity: 1;}
+      50% {opacity: .8;}
+    }
+    .dashboard-card {
+      transition: all 0.3s ease;
+    }
+    .dashboard-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .sidebar-link.active {
+      background-color: rgba(14, 165, 233, 0.1);
+      border-left: 4px solid #0ea5e9;
+      color: #0ea5e9;
+    }
+    .sidebar-link:hover:not(.active) {
+      background-color: rgba(226, 232, 240, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+  <!-- Sidebar (копируем из dashboard.html) -->
+  <aside class="bg-white shadow-lg w-64 hidden md:flex flex-col z-10">
+    <div class="flex items-center justify-center h-16 border-b bg-primary-700">
+      <h1 class="text-xl font-bold text-white">WMS Dashboard</h1>
+    </div>
+
+    <div class="flex flex-col justify-between flex-1 overflow-y-auto">
+      <nav class="px-2 py-4">
+        <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Меню
+        </div>
+        <!-- Ниже полностью копируем ссылки из dashboard.html -->
+        <a href="/dashboard" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+          <i class="fas fa-home mr-3"></i>
+          <span>Главная</span>
+        </a>
+        <a href="/tasks" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+          <i class="fas fa-tasks mr-3"></i>
+          <span>Мои задачи</span>
+          <span th:if="${taskPending != null && !taskPending.isEmpty()}"
+                class="ml-auto bg-primary-500 text-white text-xs font-semibold px-2 py-1 rounded-full"
+                th:text="${taskPending.size()}">3</span>
+        </a>
+
+        <!-- Блоки для ADMIN, MANAGER, WAREHOUSE_WORKER и т.д. -->
+        <div sec:authorize="hasRole('ADMIN')" class="mt-4">
+          <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Администрирование
+          </div>
+          <a href="/admin/users" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+            <i class="fas fa-users mr-3"></i>
+            <span>Управление пользователями</span>
+          </a>
+          <a href="/admin/audit-logs" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+            <i class="fas fa-history mr-3"></i>
+            <span>Журнал аудита</span>
+          </a>
+          <a href="/admin/settings" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+            <i class="fas fa-cog mr-3"></i>
+            <span>Системные настройки</span>
+          </a>
+        </div>
+
+        <div sec:authorize="hasRole('MANAGER')" class="mt-4">
+          <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Управление
+          </div>
+          <a href="/inventory" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+            <i class="fas fa-boxes mr-3"></i>
+            <span>Инвентаризации</span>
+          </a>
+          <a href="/transactions" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+            <i class="fas fa-exchange-alt mr-3"></i>
+            <span>Транзакции</span>
+          </a>
+          <a href="/partners" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+            <i class="fas fa-handshake mr-3"></i>
+            <span>Партнеры</span>
+          </a>
+        </div>
+
+        <div sec:authorize="hasRole('WAREHOUSE_WORKER')" class="mt-4">
+          <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Склад
+          </div>
+          <a href="/worker/stock" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+            <i class="fas fa-cubes mr-3"></i>
+            <span>Обзор остатков</span>
+          </a>
+          <a href="/worker/inventory" class="sidebar-link flex items-center px-4 py-3 text-secondary-700 rounded-md mb-1">
+            <i class="fas fa-clipboard-list mr-3"></i>
+            <span>Активные инвентаризации</span>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Блок профиля пользователя -->
+      <div class="border-t p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
+              <span th:text="${username != null ? #strings.substring(username, 0, 1).toUpperCase() : 'user'}">U</span>
+            </div>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-700" th:text="${username != null ? username : 'user'}">Имя</p>
+            <a href="/logout" class="text-xs font-medium text-primary-600 hover:text-primary-700">Выйти</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile Sidebar Toggle (если нужно) -->
+  <div class="md:hidden fixed bottom-4 right-4 z-50">
+    <button id="mobile-menu-button" class="bg-primary-600 shadow-lg rounded-full p-3 text-white focus:outline-none">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Основная область (Topbar + контент) -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Header (из dashboard.html) -->
+    <header class="bg-white shadow-sm z-10">
+      <div class="px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center">
+          <!-- Кнопка открыть/закрыть sidebar на мобильных -->
+          <button id="sidebar-toggle" class="mr-2 md:hidden">
+            <i class="fas fa-bars text-gray-500"></i>
+          </button>
+          <h2 class="text-lg font-semibold text-gray-800">WMS</h2>
+          <span class="ml-4 px-2 py-1 text-xs bg-secondary-100 text-secondary-700 rounded-md"
+                th:text="${#temporals.format(T(java.time.LocalDateTime).now(), 'EEEE, dd MMMM yyyy')}">
+                        1 января 2025
+                    </span>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
+              <i class="fas fa-bell"></i>
+              <span th:if="${taskPending != null && !taskPending.isEmpty()}"
+                    class="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 flex items-center justify-center text-white text-xs"
+                    th:text="${taskPending.size()}">3</span>
+            </button>
+          </div>
+          <div class="relative">
+            <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
+              <i class="fas fa-cog"></i>
+            </button>
+          </div>
+          <div class="md:hidden">
+            <span class="font-medium text-sm" th:text="${username}">Username</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Место для основного контента страниц -->
+    <main class="flex-1 overflow-y-auto bg-gray-50 p-4" layout:fragment="content">
+      <!-- Здесь будет основной контент страниц -->
+    </main>
+
+  </div>
+</div>
+
+<script>
+  // Кнопка мобильного меню
+  document.getElementById('mobile-menu-button').addEventListener('click', function() {
+    document.querySelector('aside').classList.toggle('hidden');
+    document.querySelector('aside').classList.toggle('md:flex');
+    document.querySelector('aside').classList.toggle('fixed');
+    document.querySelector('aside').classList.toggle('inset-0');
+    document.querySelector('aside').classList.toggle('z-50');
+  });
+
+  // Sidebar toggle для мобильных
+  document.getElementById('sidebar-toggle').addEventListener('click', function() {
+    document.querySelector('aside').classList.toggle('hidden');
+    document.querySelector('aside').classList.toggle('md:flex');
+    document.querySelector('aside').classList.toggle('fixed');
+    document.querySelector('aside').classList.toggle('inset-0');
+    document.querySelector('aside').classList.toggle('z-50');
+  });
+
+  // Подсветка активной ссылки
+  document.addEventListener('DOMContentLoaded', function() {
+    const path = window.location.pathname;
+    const links = document.querySelectorAll('.sidebar-link');
+    links.forEach(link => {
+      if (link.getAttribute('href') === path) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  });
+</script>
+</body>
+</html>

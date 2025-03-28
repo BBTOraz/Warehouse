@@ -10,10 +10,12 @@ import bbt.tao.warehouse.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +36,7 @@ public class AdminUserController {
     @GetMapping("/users")
     public String listUsers(@RequestParam(required = false) String search,
                             @RequestParam(required = false) String sort,
-                            Model model) {
+                            Model model, Authentication authentication) {
         List<UserDTO> users = userService.findAllUsers();
 
         if (search != null && !search.isEmpty()) {
@@ -46,6 +48,7 @@ public class AdminUserController {
                             (u.getEmail() != null && u.getEmail().toLowerCase().contains(lowerSearch)))
                     .collect(Collectors.toList());
         }
+
 
         if (sort != null && !sort.isEmpty()) {
             switch (sort) {

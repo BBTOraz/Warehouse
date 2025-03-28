@@ -1,26 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Создание транзакции | Склад</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
-<div class="min-h-screen">
-    <!-- Заголовок -->
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-gray-900">Создание транзакции</h1>
-                <a th:href="@{/inventory/transactions}"
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <i class="fas fa-arrow-left mr-2"></i> Назад к списку
-                </a>
-            </div>
-        </div>
-    </header>
+<div layout:fragment="content" class="overflow-y-auto">
 
     <!-- Форма создания транзакции -->
     <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -203,84 +189,83 @@
             </form>
         </div>
     </div>
-</div>
+    <!-- Скрипт для управления отображением полей в зависимости от типа транзакции -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const transactionTypeSelect = document.getElementById('transactionType');
 
-<!-- Скрипт для управления отображением полей в зависимости от типа транзакции -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const transactionTypeSelect = document.getElementById('transactionType');
+            function updateFieldsVisibility() {
+                const transactionType = transactionTypeSelect.value;
+                // Получаем блоки, зависящие от типа транзакции
+                const sourceLocationBlock = document.getElementById('sourceLocation')?.closest('.mb-4');
+                const destLocationBlock = document.getElementById('destinationLocation')?.closest('.mb-4');
+                const supplierBlock = document.getElementById('supplier')?.closest('.mb-4');
+                const customerBlock = document.getElementById('customer')?.closest('.mb-4');
 
-        function updateFieldsVisibility() {
-            const transactionType = transactionTypeSelect.value;
-            // Получаем блоки, зависящие от типа транзакции
-            const sourceLocationBlock = document.getElementById('sourceLocation')?.closest('.mb-4');
-            const destLocationBlock = document.getElementById('destinationLocation')?.closest('.mb-4');
-            const supplierBlock = document.getElementById('supplier')?.closest('.mb-4');
-            const customerBlock = document.getElementById('customer')?.closest('.mb-4');
+                // Скрываем все блоки по умолчанию
+                if (sourceLocationBlock) sourceLocationBlock.style.display = 'none';
+                if (destLocationBlock) destLocationBlock.style.display = 'none';
+                if (supplierBlock) supplierBlock.style.display = 'none';
+                if (customerBlock) customerBlock.style.display = 'none';
 
-            // Скрываем все блоки по умолчанию
-            if (sourceLocationBlock) sourceLocationBlock.style.display = 'none';
-            if (destLocationBlock) destLocationBlock.style.display = 'none';
-            if (supplierBlock) supplierBlock.style.display = 'none';
-            if (customerBlock) customerBlock.style.display = 'none';
-
-            // Показываем нужные блоки
-            if (transactionType === 'RECEIVING') {
-                if (destLocationBlock) destLocationBlock.style.display = 'block';
-                if (supplierBlock) supplierBlock.style.display = 'block';
-            } else if (transactionType === 'SHIPPING') {
-                if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
-                if (customerBlock) customerBlock.style.display = 'block';
-            } else if (transactionType === 'TRANSFER') {
-                if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
-                if (destLocationBlock) destLocationBlock.style.display = 'block';
-            } else if (transactionType === 'ADJUSTMENT') {
-                if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
-            }
-
-            // Обновляем атрибуты required
-            if (sourceLocationBlock) {
-                const sourceInput = document.getElementById('sourceLocation');
-                if (['SHIPPING', 'TRANSFER', 'ADJUSTMENT'].includes(transactionType)) {
-                    sourceInput.setAttribute('required', '');
-                } else {
-                    sourceInput.removeAttribute('required');
-                }
-            }
-            if (destLocationBlock) {
-                const destInput = document.getElementById('destinationLocation');
-                if (['RECEIVING', 'TRANSFER'].includes(transactionType)) {
-                    destInput.setAttribute('required', '');
-                } else {
-                    destInput.removeAttribute('required');
-                }
-            }
-            if (supplierBlock) {
-                const supplierInput = document.getElementById('supplier');
+                // Показываем нужные блоки
                 if (transactionType === 'RECEIVING') {
-                    supplierInput.setAttribute('required', '');
-                } else {
-                    supplierInput.removeAttribute('required');
+                    if (destLocationBlock) destLocationBlock.style.display = 'block';
+                    if (supplierBlock) supplierBlock.style.display = 'block';
+                } else if (transactionType === 'SHIPPING') {
+                    if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
+                    if (customerBlock) customerBlock.style.display = 'block';
+                } else if (transactionType === 'TRANSFER') {
+                    if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
+                    if (destLocationBlock) destLocationBlock.style.display = 'block';
+                } else if (transactionType === 'ADJUSTMENT') {
+                    if (sourceLocationBlock) sourceLocationBlock.style.display = 'block';
+                }
+
+                // Обновляем атрибуты required
+                if (sourceLocationBlock) {
+                    const sourceInput = document.getElementById('sourceLocation');
+                    if (['SHIPPING', 'TRANSFER', 'ADJUSTMENT'].includes(transactionType)) {
+                        sourceInput.setAttribute('required', '');
+                    } else {
+                        sourceInput.removeAttribute('required');
+                    }
+                }
+                if (destLocationBlock) {
+                    const destInput = document.getElementById('destinationLocation');
+                    if (['RECEIVING', 'TRANSFER'].includes(transactionType)) {
+                        destInput.setAttribute('required', '');
+                    } else {
+                        destInput.removeAttribute('required');
+                    }
+                }
+                if (supplierBlock) {
+                    const supplierInput = document.getElementById('supplier');
+                    if (transactionType === 'RECEIVING') {
+                        supplierInput.setAttribute('required', '');
+                    } else {
+                        supplierInput.removeAttribute('required');
+                    }
+                }
+                if (customerBlock) {
+                    const customerInput = document.getElementById('customer');
+                    if (transactionType === 'SHIPPING') {
+                        customerInput.setAttribute('required', '');
+                    } else {
+                        customerInput.removeAttribute('required');
+                    }
                 }
             }
-            if (customerBlock) {
-                const customerInput = document.getElementById('customer');
-                if (transactionType === 'SHIPPING') {
-                    customerInput.setAttribute('required', '');
-                } else {
-                    customerInput.removeAttribute('required');
-                }
-            }
-        }
 
-        updateFieldsVisibility();
-
-        transactionTypeSelect.addEventListener('change', function() {
-            this.classList.add('bg-blue-50');
-            setTimeout(() => this.classList.remove('bg-blue-50'), 300);
             updateFieldsVisibility();
+
+            transactionTypeSelect.addEventListener('change', function() {
+                this.classList.add('bg-blue-50');
+                setTimeout(() => this.classList.remove('bg-blue-50'), 300);
+                updateFieldsVisibility();
+            });
         });
-    });
-</script>
+    </script>
+</div>
 </body>
 </html>

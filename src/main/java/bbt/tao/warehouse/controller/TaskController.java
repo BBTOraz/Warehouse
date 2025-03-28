@@ -10,17 +10,20 @@ import bbt.tao.warehouse.security.CustomUserDetails;
 import bbt.tao.warehouse.service.AuditLogService;
 import bbt.tao.warehouse.service.TaskService;
 import bbt.tao.warehouse.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Controller
 @RequestMapping("/tasks")
 public class TaskController {
@@ -55,8 +58,10 @@ public class TaskController {
         boolean isWorker = currentUser.getRoles().stream().anyMatch(r -> r.getRole() == RoleType.WAREHOUSE_WORKER);
 
         if (isAdmin) {
+            System.out.println("Admin role detected");
             tasks = allTasks; // Админ видит все задачи
         } else if (isManager) {
+            System.out.println("Manager role detected");
             // Менеджер видит задачи, назначенные менеджерам и работникам склада
             tasks = allTasks.stream()
                     .filter(t -> t.getAssignedUserDetails() != null && t.getAssignedUserDetails().getRoles() != null &&
@@ -64,6 +69,7 @@ public class TaskController {
                                     r.getRole() == RoleType.WAREHOUSE_WORKER))
                     .collect(Collectors.toList());
         } else {
+            System.out.println("Warehouse worker role detected");
             // Работник видит только свои задачи
             tasks = allTasks.stream()
                     .filter(t -> t.getAssignedUserDetails() != null && t.getAssignedUserDetails().getId().equals(currentUser.getId()))
@@ -116,7 +122,6 @@ public class TaskController {
             }
             model.addAttribute("potentialAssignees", potentialAssignees);
         }
-
         return "mytask";
     }
 
@@ -128,21 +133,23 @@ public class TaskController {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UserDTO currentUser = userDetails.getUser();
         Optional<UserDTO> assignee;
-        if (currentUser.getRoles().stream().anyMatch(r -> r.getRole() == RoleType.MANAGER)) {
+        if (currentUser.getRoles().stream().anyMatch(r -> r.getRole() != RoleType.WAREHOUSE_WORKER)) {
             if (taskDTO.getAssignedUserDetails().getId() != null) {
                 assignee = userService.findUserById(taskDTO.getAssignedUserDetails().getId());
                 if (assignee.isPresent()) {
                     boolean validAssignee = assignee.get().getRoles().stream().anyMatch(r -> r.getRole() == RoleType.MANAGER ||
-                            r.getRole() == RoleType.WAREHOUSE_WORKER);
+                            r.getRole() == RoleType.ADMIN);
+                    log.info("Valid assignee: {}", validAssignee);
                     if (validAssignee) {
-                        auditLogService.logAction(userMapper.toEntity(currentUser), ActionType.CREATE, "USER", 1L, "Создание задачи: " + taskDTO.getTitle() + "для " + assignee.get().getUsername(), "192.168.1.101" );
+                        auditLogService.logAction(userMapper.toEntity(currentUser), ActionType.CREATE, "USER", 1L, "Создание задачи: " + taskDTO.getTitle() + " для " + assignee.get().getUsername(), "192.168.1.101" );
                         taskService.saveTask(taskDTO);
-                        return "redirect:/tasks";
+                            return "redirect:/tasks";
                     }
                 }
             }
         }
         model.addAttribute("error", "Менеджер может создавать задачи только для менеджеров и работников склада.");
-        return "mytask";
+
+        return "redirect:/tasks";
     }
 }

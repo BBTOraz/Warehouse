@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}"
+      xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Детали пользователя</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <style>
         .tab-content {
             display: none;
@@ -16,7 +15,7 @@
     </style>
 </head>
 <body class="bg-gray-100">
-<div class="container mx-auto px-4 py-8">
+<div layout:fragment="content"  class="container overflow-y-auto mx-auto px-4 py-8">
     <!-- Заголовок страницы -->
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Информация о пользователе</h1>
@@ -321,62 +320,61 @@
             </div>
         </div>
     </div>
+    <script>
+        // Переключение вкладок
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+
+                    // Скрываем все вкладки
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+
+                    // Убираем активный класс со всех кнопок
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-500');
+                        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+
+                    // Активируем выбранную вкладку
+                    document.getElementById(tabId).classList.add('active');
+
+                    // Активируем кнопку
+                    this.classList.remove('text-gray-500', 'hover:text-gray-700');
+                    this.classList.add('text-blue-600', 'border-b-2', 'border-blue-500');
+                });
+            });
+
+            // Деактивация/активация пользователя
+            const deactivateButtons = document.querySelectorAll('.deactivate-btn');
+            const activateButtons = document.querySelectorAll('.activate-btn');
+
+            deactivateButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    if (confirm('Вы уверены, что хотите деактивировать этого пользователя?')) {
+                        // Здесь можно добавить AJAX запрос на деактивацию пользователя
+                        console.log('Деактивация пользователя с ID:', userId);
+                    }
+                });
+            });
+
+            activateButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    if (confirm('Вы уверены, что хотите активировать этого пользователя?')) {
+                        // Здесь можно добавить AJAX запрос на активацию пользователя
+                        console.log('Активация пользователя с ID:', userId);
+                    }
+                });
+            });
+        });
+    </script>
 </div>
-
-<script>
-    // Переключение вкладок
-    document.addEventListener('DOMContentLoaded', function() {
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        tabButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const tabId = this.getAttribute('data-tab');
-
-                // Скрываем все вкладки
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                });
-
-                // Убираем активный класс со всех кнопок
-                tabButtons.forEach(btn => {
-                    btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-500');
-                    btn.classList.add('text-gray-500', 'hover:text-gray-700');
-                });
-
-                // Активируем выбранную вкладку
-                document.getElementById(tabId).classList.add('active');
-
-                // Активируем кнопку
-                this.classList.remove('text-gray-500', 'hover:text-gray-700');
-                this.classList.add('text-blue-600', 'border-b-2', 'border-blue-500');
-            });
-        });
-
-        // Деактивация/активация пользователя
-        const deactivateButtons = document.querySelectorAll('.deactivate-btn');
-        const activateButtons = document.querySelectorAll('.activate-btn');
-
-        deactivateButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const userId = this.getAttribute('data-id');
-                if (confirm('Вы уверены, что хотите деактивировать этого пользователя?')) {
-                    // Здесь можно добавить AJAX запрос на деактивацию пользователя
-                    console.log('Деактивация пользователя с ID:', userId);
-                }
-            });
-        });
-
-        activateButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const userId = this.getAttribute('data-id');
-                if (confirm('Вы уверены, что хотите активировать этого пользователя?')) {
-                    // Здесь можно добавить AJAX запрос на активацию пользователя
-                    console.log('Активация пользователя с ID:', userId);
-                }
-            });
-        });
-    });
-</script>
 </body>
 </html>
