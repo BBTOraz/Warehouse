@@ -3,6 +3,11 @@ package bbt.tao.warehouse.controller.manager;
 
 import bbt.tao.warehouse.dto.customer.CustomerDTO;
 import bbt.tao.warehouse.dto.supplier.SupplierDTO;
+import bbt.tao.warehouse.mapper.UserMapper;
+import bbt.tao.warehouse.model.User;
+import bbt.tao.warehouse.model.enums.ActionType;
+import bbt.tao.warehouse.security.CustomUserDetails;
+import bbt.tao.warehouse.service.AuditLogService;
 import bbt.tao.warehouse.service.CustomerService;
 import bbt.tao.warehouse.service.SupplierService;
 import lombok.AllArgsConstructor;
@@ -10,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +31,8 @@ public class ManagerPartnersController {
 
     private final CustomerService customerService;
     private final SupplierService supplierService;
+    private final AuditLogService auditLogService;
+    private final UserMapper userMapper;
 
     @GetMapping
     public String getPartnersPage(Model model) {
@@ -53,6 +61,7 @@ public class ManagerPartnersController {
     public String editCustomerForm(@PathVariable Long id, Model model) {
         Optional<CustomerDTO> customer = customerService.findCustomerById(id);
         if (customer.isPresent()) {
+
             model.addAttribute("customer", customer.get());
             return "manager/partners/customer-form";
         }
@@ -60,10 +69,14 @@ public class ManagerPartnersController {
     }
 
     @PostMapping("/customers/edit/{id}")
-    public String updateCustomer(@PathVariable Long id, @ModelAttribute CustomerDTO customerDTO, RedirectAttributes redirectAttributes) {
+    public String updateCustomer(@PathVariable Long id, Authentication authentication, @ModelAttribute CustomerDTO customerDTO, RedirectAttributes redirectAttributes) {
         try {
             customerDTO.setId(id);
             customerService.saveCustomer(customerDTO);
+
+            User user = userMapper.toEntity(((CustomUserDetails) authentication.getPrincipal()).getUser());
+            String message = "Пользователь " + user.getUsername() + " изменение покупателя " + customerDTO.getName();
+            auditLogService.logAction(user, ActionType.ADJUST, "Customer", id, message, "192.168.1.101");
             redirectAttributes.addFlashAttribute("success", "Customer updated successfully");
             return "redirect:/partners/customers";
         } catch (Exception e) {
@@ -76,6 +89,7 @@ public class ManagerPartnersController {
     public String deleteCustomer(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             customerService.deleteCustomer(id);
+
             redirectAttributes.addFlashAttribute("success", "Customer deleted successfully");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -117,10 +131,15 @@ public class ManagerPartnersController {
     }
 
     @PostMapping("/suppliers/edit/{id}")
-    public String updateSupplier(@PathVariable Long id, @ModelAttribute SupplierDTO supplierDTO, RedirectAttributes redirectAttributes) {
+    public String updateSupplier(@PathVariable Long id, Authentication authentication,  @ModelAttribute SupplierDTO supplierDTO, RedirectAttributes redirectAttributes) {
         try {
             supplierDTO.setId(id);
             supplierService.saveSupplier(supplierDTO);
+
+            User user = userMapper.toEntity(((CustomUserDetails) authentication.getPrincipal()).getUser());
+            String message = "Пользователь " + user.getUsername() + " изменение поставщика " + supplierDTO.getName();
+            auditLogService.logAction(user, ActionType.ADJUST, "Customer", id, message, "192.168.1.101");
+
             redirectAttributes.addFlashAttribute("success", "Supplier updated successfully");
             return "redirect:/partners/suppliers";
         } catch (Exception e) {

@@ -84,9 +84,6 @@
             </div>
         </div>
         <div class="mt-6 flex space-x-4">
-            <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                <i class="fas fa-edit mr-2"></i>Редактировать
-            </a>
             <button th:if="${user.isActive}" th:data-id="${user.id}" class="deactivate-btn bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
                 <i class="fas fa-ban mr-2"></i>Деактивировать
             </button>
@@ -157,9 +154,6 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(task.dueDate, 'dd.MM.yyyy')}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(task.createdAt, 'dd.MM.yyyy')}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <a th:href="@{/admin/tasks/{id}(id=${task.id})}" class="text-blue-600 hover:text-blue-900">Подробнее</a>
-                        </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(tasks)}">
                         <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">Нет задач</td>
@@ -255,9 +249,6 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${transaction.quantity}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(transaction.transactionDate, 'dd.MM.yyyy HH:mm')}"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <a th:href="@{/admin/transactions/{id}(id=${transaction.id})}" class="text-blue-600 hover:text-blue-900">Подробнее</a>
-                        </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(transactions)}">
                         <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">Нет транзакций</td>
@@ -330,12 +321,11 @@
                 button.addEventListener('click', function() {
                     const tabId = this.getAttribute('data-tab');
 
-                    // Скрываем все вкладки
                     tabContents.forEach(content => {
                         content.classList.remove('active');
                     });
 
-                    // Убираем активный класс со всех кнопок
+
                     tabButtons.forEach(btn => {
                         btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-500');
                         btn.classList.add('text-gray-500', 'hover:text-gray-700');
@@ -350,7 +340,6 @@
                 });
             });
 
-            // Деактивация/активация пользователя
             const deactivateButtons = document.querySelectorAll('.deactivate-btn');
             const activateButtons = document.querySelectorAll('.activate-btn');
 
@@ -358,7 +347,6 @@
                 button.addEventListener('click', function() {
                     const userId = this.getAttribute('data-id');
                     if (confirm('Вы уверены, что хотите деактивировать этого пользователя?')) {
-                        // Здесь можно добавить AJAX запрос на деактивацию пользователя
                         console.log('Деактивация пользователя с ID:', userId);
                     }
                 });

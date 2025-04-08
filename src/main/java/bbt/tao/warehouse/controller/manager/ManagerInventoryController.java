@@ -2,12 +2,16 @@ package bbt.tao.warehouse.controller.manager;
 
 import bbt.tao.warehouse.dto.inventory.InventoryCountDTO;
 import bbt.tao.warehouse.dto.inventory.InventoryDTO;
+import bbt.tao.warehouse.dto.user.UserDTO;
 import bbt.tao.warehouse.dto.warehouse.WarehouseDTO;
 import bbt.tao.warehouse.mapper.InventoryCountMapper;
+import bbt.tao.warehouse.mapper.UserMapper;
+import bbt.tao.warehouse.model.enums.ActionType;
 import bbt.tao.warehouse.model.enums.InventoryStatus;
 import bbt.tao.warehouse.repository.LocationRepository;
 import bbt.tao.warehouse.security.CustomUserDetails;
 import bbt.tao.warehouse.security.service.CustomUserDetailsServiceImpl;
+import bbt.tao.warehouse.service.AuditLogService;
 import bbt.tao.warehouse.service.InventoryService;
 import bbt.tao.warehouse.service.WarehouseService;
 import bbt.tao.warehouse.service.impl.CustomerServiceImpl;
@@ -38,6 +42,8 @@ public class ManagerInventoryController {
     private final InventoryCountMapper inventoryCountMapper;
     private final WarehouseService warehouseService;
     private final LocationRepository locationRepository;
+    private final AuditLogService auditLogService;
+    private final UserMapper userMapper;
 
     @GetMapping
     public String getInventoryPage(Model model) {
@@ -68,9 +74,11 @@ public class ManagerInventoryController {
 
     @PostMapping("/create")
     public String createInventory(@ModelAttribute InventoryDTO inventoryDTO, Authentication authentication) {
-        log.info("{} {}", inventoryDTO.toString(), ((CustomUserDetails) authentication.getPrincipal()).getUser());
+        UserDTO userDTO  = ((CustomUserDetails) authentication.getPrincipal()).getUser();
+        String message = "Пользователь " + userDTO.getUsername() + " создал инвентаризацию " + inventoryDTO.getInventoryNumber();
+        log.info("{} {}", inventoryDTO, ((CustomUserDetails) authentication.getPrincipal()).getUser());
         inventoryService.createInventory(inventoryDTO, ((CustomUserDetails) authentication.getPrincipal()).getUser());
-
+        auditLogService.logAction(userMapper.toEntity(userDTO), ActionType.CREATE, "Inventory", inventoryDTO.getId(), message, "192.168.1.101");
         return "redirect:/inventory";
     }
 
@@ -87,16 +95,23 @@ public class ManagerInventoryController {
     }
 
     @PostMapping("/edit/{id}")
-    public String updateInventory(@PathVariable Long id, @ModelAttribute InventoryDTO inventoryDTO) {
+    public String updateInventory(@PathVariable Long id, @ModelAttribute InventoryDTO inventoryDTO, Authentication authentication) {
         inventoryDTO.setId(id);
         log.info(inventoryDTO.toString());
+        UserDTO userDTO  = ((CustomUserDetails) authentication.getPrincipal()).getUser();
+        String message = "Пользователь " + userDTO.getUsername() + " изменил инвентаризацию " + inventoryDTO.getInventoryNumber();
+
         inventoryService.updateInventory(inventoryDTO);
+        auditLogService.logAction(userMapper.toEntity(userDTO), ActionType.ADJUST, "Inventory", inventoryDTO.getId(), message, "192.168.1.101");
         return "redirect:/inventory";
     }
 
     @PostMapping("/{id}/status")
-    public String changeStatus(@PathVariable Long id, @RequestParam InventoryStatus status) {
+    public String changeStatus(@PathVariable Long id, @RequestParam InventoryStatus status, Authentication authentication) {
         inventoryService.changeStatus(id, status);
+        UserDTO userDTO  = ((CustomUserDetails) authentication.getPrincipal()).getUser();
+        String message = "Пользователь " + userDTO.getUsername() + " изменил статус на " + status;
+        auditLogService.logAction(userMapper.toEntity(userDTO), ActionType.ADJUST, "Inventory", id, message, "192.168.1.101");
         return "redirect:/inventory/" + id;
     }
 

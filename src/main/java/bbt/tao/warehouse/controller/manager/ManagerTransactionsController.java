@@ -4,6 +4,7 @@ import bbt.tao.warehouse.dto.inventory.InventoryTransactionDTO;
 import bbt.tao.warehouse.dto.user.UserDTO;
 import bbt.tao.warehouse.exceptions.InsufficientStockException;
 import bbt.tao.warehouse.mapper.UserMapper;
+import bbt.tao.warehouse.model.enums.ActionType;
 import bbt.tao.warehouse.model.enums.TransactionType;
 import bbt.tao.warehouse.security.CustomUserDetails;
 import bbt.tao.warehouse.service.*;
@@ -36,7 +37,9 @@ public class ManagerTransactionsController {
     private final SupplierService supplierService;
     private final CustomerService customerService;
     private final WarehouseService warehouseService;
-    
+    private final AuditLogService auditLogService;
+    private final UserMapper userMapper;
+
 
     @GetMapping
     public String getAllTransactions(
@@ -104,7 +107,6 @@ public class ManagerTransactionsController {
             Authentication authentication,
             Model model,
             RedirectAttributes redirectAttributes) {
-
         if (bindingResult.hasErrors()) {
             addCommonModelAttributes(model);
             return "manager/transactions/transaction-form";
@@ -127,6 +129,8 @@ public class ManagerTransactionsController {
                 default -> throw new IllegalArgumentException("Неизвестный тип транзакции");
             };
 
+            String message = "Пользователь " + userDTO.getUsername() + " создал транзакцию " + createdTransaction.getDocumentNumber();
+            auditLogService.logAction(userMapper.toEntity(userDTO), ActionType.CREATE, "Transaction", createdTransaction.getId(), message, "192.168.1.101");
             redirectAttributes.addFlashAttribute("successMessage", "Транзакция успешно создана");
             return "redirect:/transactions/" + createdTransaction.getId();
 
@@ -174,6 +178,9 @@ public class ManagerTransactionsController {
 
             InventoryTransactionDTO updatedTransaction = transactionService.updateTransaction(id, transactionDTO);
 
+            String message = "Пользователь " + currentUser.getUsername() + " изменил транзакцию " + updatedTransaction.getDocumentNumber();
+            auditLogService.logAction(userMapper.toEntity(currentUser), ActionType.ADJUST, "Транзакция",  transactionDTO.getId(), message, "192.168.1.101");
+
             redirectAttributes.addFlashAttribute("successMessage", "Транзакция успешно обновлена");
             return "redirect:/transactions/" + updatedTransaction.getId();
         } catch (InsufficientStockException e) {
@@ -215,6 +222,9 @@ public class ManagerTransactionsController {
                     default -> throw new IllegalArgumentException("Неизвестный тип транзакции");
                 };
 
+                String message = "Пользователь " + userDTO.getUsername() + " изменил тип транзакции на " + newType;
+                auditLogService.logAction(userMapper.toEntity(userDTO), ActionType.ADJUST, "Транзакция",  transactionDTO.getId(), message, "192.168.1.101");
+
                 redirectAttributes.addFlashAttribute("successMessage", "Тип транзакции успешно изменен");
                 return "redirect:/transactions/" + updatedTransaction.getId();
             }
@@ -233,6 +243,7 @@ public class ManagerTransactionsController {
     @PostMapping("/{id}/delete")
     public String deleteTransaction(
             @PathVariable Long id,
+            Authentication authentication,
             RedirectAttributes redirectAttributes) {
         try {
             transactionService.deleteTransaction(id);
@@ -240,7 +251,9 @@ public class ManagerTransactionsController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Ошибка при удалении транзакции: " + e.getMessage());
         }
-
+        UserDTO userDTO = ((CustomUserDetails) authentication.getPrincipal()).getUser();
+        String message = "Пользователь " + userDTO.getUsername() + " удалил транзакцию " + id;
+        auditLogService.logAction(userMapper.toEntity(userDTO), ActionType.DELETE, "Транзакция",  id, message, "192.168.1.101");
         return "redirect:/transactions";
     }
 
@@ -253,8 +266,6 @@ public class ManagerTransactionsController {
         model.addAttribute("customers", customerService.findAllCustomers());
         model.addAttribute("warehouses", warehouseService.findAllWarehouses());
     }
-
-
         private record SearchParams(Long productId, TransactionType transactionType, Long supplierId, Long customerId,
                                     String documentNumber, LocalDateTime startDate, LocalDateTime endDate,
                                     Long locationId) {

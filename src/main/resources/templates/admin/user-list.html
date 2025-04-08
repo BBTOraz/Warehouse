@@ -194,11 +194,11 @@
         <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
           Отмена
         </button>
-        <form id="deleteForm" method="POST">
+        <div id="deleteForm">
           <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
             Удалить
           </button>
-        </form>
+        </div>
       </div>
     </div>
   </div>
@@ -216,21 +216,19 @@
         <button onclick="closeStatusModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
           Отмена
         </button>
-        <form id="statusForm" method="POST">
+        <div id="statusForm">
           <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
             Подтвердить
           </button>
-        </form>
+        </div>
       </div>
     </div>
   </div>
   <script>
-    // Определяем функции в глобальной области
     window.confirmDelete = function(button) {
       const userId = button.getAttribute('data-user-id');
       const userName = button.getAttribute('data-user-name');
       document.getElementById('deleteUserName').textContent = userName;
-      document.getElementById('deleteForm').action = `/users/${userId}/delete`;
       document.getElementById('deleteModal').classList.remove('hidden');
     };
 
@@ -241,19 +239,15 @@
     window.toggleUserStatus = function(button) {
       const userId = button.getAttribute('data-user-id');
       const userName = button.getAttribute('data-user-name');
-      // Проверяем наличие класса 'text-red-600'
       const isActive = button.classList.contains('text-red-600');
       document.getElementById('statusUserName').textContent = userName;
       document.getElementById('statusAction').textContent = isActive ? 'деактивировать' : 'активировать';
-      document.getElementById('statusForm').action = `/users/${userId}/toggle-status`;
       document.getElementById('statusModal').classList.remove('hidden');
     };
-
     window.closeStatusModal = function() {
       document.getElementById('statusModal').classList.add('hidden');
     };
 
-    // Закрытие модальных окон при клике вне них
     document.addEventListener('DOMContentLoaded', function() {
       window.addEventListener('click', (e) => {
         const deleteModal = document.getElementById('deleteModal');

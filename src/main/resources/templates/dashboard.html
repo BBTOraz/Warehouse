@@ -11,195 +11,193 @@
 <!-- Main Layout -->
 <div layout:fragment="content">
 
-        <div class="flex-1 overflow-y-auto bg-gray-50 p-4">
-            <!-- Welcome Message -->
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Welcome back, <span th:text="${username}" class="text-primary-600">Username</span>!</h1>
-                <p class="text-gray-600">Here's what's happening with your warehouse operations today.</p>
+    <div class="flex-1 overflow-y-auto bg-gray-50 p-4">
+        <!-- Welcome Message -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">С возвращением, <span th:text="${username}" class="text-primary-600">Username</span>!</h1>
+            <p class="text-gray-600">Вот что происходит с вашими операциями на складе сегодня.</p>
+        </div>
+
+        <!-- Common Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Ожидающие задачи</p>
+                        <h3 class="text-xl font-bold text-gray-800" th:text="${taskPending != null ? taskPending.size() : 0}">5</h3>
+                    </div>
+                    <div class="p-2 bg-blue-100 rounded-md">
+                        <i class="fas fa-tasks text-blue-500"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="/tasks" class="text-xs text-blue-500 hover:underline">Просмотреть все задачи</a>
+                </div>
             </div>
 
-            <!-- Common Dashboard Stats -->
+            <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Выполненные задачи</p>
+                        <h3 class="text-xl font-bold text-gray-800" th:text="${completedTasksCount}">12</h3>
+                    </div>
+                    <div class="p-2 bg-green-100 rounded-md">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="/tasks/completed" class="text-xs text-green-500 hover:underline">Просмотреть историю</a>
+                </div>
+            </div>
+
+            <!-- Additional common stats -->
+            <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-indigo-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Состояние системы</p>
+                        <h3 class="text-xl font-bold text-gray-800">В сети</h3>
+                    </div>
+                    <div class="p-2 bg-indigo-100 rounded-md">
+                        <i class="fas fa-signal text-indigo-500"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center">
+                    <span class="h-2 w-2 bg-green-500 rounded-full animate-pulse-slow"></span>
+                    <span class="text-xs text-gray-500 ml-1">Все системы работают нормально</span>
+                </div>
+            </div>
+
+            <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-amber-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Последняя активность</p>
+                        <h3 class="text-xl font-bold text-gray-800">Сегодня</h3>
+                    </div>
+                    <div class="p-2 bg-amber-100 rounded-md">
+                        <i class="fas fa-clock text-amber-500"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-xs text-gray-500" th:text="${#temporals.format(T(java.time.LocalDateTime).now(), 'HH:mm')}">14:30</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role-specific sections -->
+
+        <!-- Admin Section -->
+        <div sec:authorize="hasRole('ADMIN')" class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Обзор администрирования</h2>
+
+            <!-- User Statistics -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
-                    <div class="flex justify-between items-start">
+                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
+                    <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Tasks Pending</p>
-                            <h3 class="text-xl font-bold text-gray-800" th:text="${taskPending != null ? taskPending.size() : 0}">5</h3>
+                            <p class="text-sm font-medium text-gray-500">Всего пользователей</p>
+                            <h3 class="text-xl font-bold text-gray-800" th:text="${totalUsers}">24</h3>
                         </div>
-                        <div class="p-2 bg-blue-100 rounded-md">
-                            <i class="fas fa-tasks text-blue-500"></i>
+                        <div class="p-2 bg-blue-100 rounded-full">
+                            <i class="fas fa-users text-blue-500"></i>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <a href="/tasks" class="text-xs text-blue-500 hover:underline">View all tasks</a>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="bg-primary-700 h-3 w-3 rounded-full mr-1"></span>
+                                <span class="text-xs text-gray-500">Администраторы</span>
+                            </div>
+                            <span class="text-xs font-medium" th:text="${adminUsers}">3</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-1">
+                            <div class="flex items-center">
+                                <span class="bg-primary-500 h-3 w-3 rounded-full mr-1"></span>
+                                <span class="text-xs text-gray-500">Менеджеры</span>
+                            </div>
+                            <span class="text-xs font-medium" th:text="${managerUsers}">6</span>
+                        </div>
+                        <div class="flex items-center justify-between mt-1">
+                            <div class="flex items-center">
+                                <span class="bg-primary-300 h-3 w-3 rounded-full mr-1"></span>
+                                <span class="text-xs text-gray-500">Рабочие</span>
+                            </div>
+                            <span class="text-xs font-medium" th:text="${workerUsers}">15</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Completed Tasks</p>
-                            <h3 class="text-xl font-bold text-gray-800" th:text="${completedTasksCount}">12</h3>
-                        </div>
-                        <div class="p-2 bg-green-100 rounded-md">
-                            <i class="fas fa-check-circle text-green-500"></i>
-                        </div>
+                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-500">Активные пользователи</p>
+                        <h3 class="text-xl font-bold text-gray-800" th:text="${activeUsers}">18</h3>
                     </div>
-                    <div class="mt-2">
-                        <a href="/tasks/completed" class="text-xs text-green-500 hover:underline">View history</a>
+                    <div class="p-2 bg-green-100 rounded-full">
+                        <i class="fas fa-user-check text-green-500"></i>
                     </div>
-                </div>
-
-                <!-- Additional common stats -->
-                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-indigo-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">System Status</p>
-                            <h3 class="text-xl font-bold text-gray-800">Online</h3>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" th:style="'width: ' + ${activeUsers / totalUsers * 100} + '%'"></div>
                         </div>
-                        <div class="p-2 bg-indigo-100 rounded-md">
-                            <i class="fas fa-signal text-indigo-500"></i>
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500">Процент активных</span>
+                            <span class="text-xs font-medium" th:text="${#numbers.formatDecimal(activeUsers / totalUsers * 100, 0, 0)} + '%'">75%</span>
                         </div>
-                    </div>
-                    <div class="mt-2 flex items-center">
-                        <span class="h-2 w-2 bg-green-500 rounded-full animate-pulse-slow"></span>
-                        <span class="text-xs text-gray-500 ml-1">All systems operational</span>
                     </div>
                 </div>
 
-                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 border-l-4 border-amber-500">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Last Activity</p>
-                            <h3 class="text-xl font-bold text-gray-800">Today</h3>
-                        </div>
-                        <div class="p-2 bg-amber-100 rounded-md">
-                            <i class="fas fa-clock text-amber-500"></i>
-                        </div>
+                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 col-span-1 md:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-sm font-medium text-gray-500">Недавняя активность пользователей</p>
+                        <a href="/admin/audit" class="text-xs text-primary-600 hover:underline">Просмотреть все</a>
                     </div>
-                    <div class="mt-2">
-                        <span class="text-xs text-gray-500" th:text="${#temporals.format(T(java.time.LocalDateTime).now(), 'HH:mm')}">14:30</span>
+                    <div class="space-y-3">
+                        <div th:each="log : ${recentActivities}" th:if="${logStat.index < 3}" class="flex items-start space-x-3">
+                            <div class="flex-shrink-0 p-1 bg-primary-100 rounded-md">
+                                <i class="fas fa-history text-primary-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-800" th:text="${log.actionDetails}">User created a new product</p>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs text-gray-500" th:text="${log.username}">john.doe</span>
+                                    <span class="text-xs text-gray-400">•</span>
+                                    <span class="text-xs text-gray-500" th:text="${#temporals.format(log.actionTimestamp, 'MMM dd, HH:mm')}">Mar 15, 12:30</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Role-specific sections -->
-
-            <!-- Admin Section -->
-            <div sec:authorize="hasRole('ADMIN')" class="mb-8">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Administration Overview</h2>
-
-                <!-- User Statistics -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Users</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${totalUsers}">24</h3>
-                            </div>
-                            <div class="p-2 bg-blue-100 rounded-full">
-                                <i class="fas fa-users text-blue-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <span class="bg-primary-700 h-3 w-3 rounded-full mr-1"></span>
-                                    <span class="text-xs text-gray-500">Admins</span>
-                                </div>
-                                <span class="text-xs font-medium" th:text="${adminUsers}">3</span>
-                            </div>
-                            <div class="flex items-center justify-between mt-1">
-                                <div class="flex items-center">
-                                    <span class="bg-primary-500 h-3 w-3 rounded-full mr-1"></span>
-                                    <span class="text-xs text-gray-500">Managers</span>
-                                </div>
-                                <span class="text-xs font-medium" th:text="${managerUsers}">6</span>
-                            </div>
-                            <div class="flex items-center justify-between mt-1">
-                                <div class="flex items-center">
-                                    <span class="bg-primary-300 h-3 w-3 rounded-full mr-1"></span>
-                                    <span class="text-xs text-gray-500">Workers</span>
-                                </div>
-                                <span class="text-xs font-medium" th:text="${workerUsers}">15</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Active Users</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${activeUsers}">18</h3>
-                            </div>
-                            <div class="p-2 bg-green-100 rounded-full">
-                                <i class="fas fa-user-check text-green-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-500 h-2 rounded-full" th:style="'width: ' + ${activeUsers / totalUsers * 100} + '%'"></div>
-                            </div>
-                            <div class="flex justify-between mt-1">
-                                <span class="text-xs text-gray-500">Active Rate</span>
-                                <span class="text-xs font-medium" th:text="${#numbers.formatDecimal(activeUsers / totalUsers * 100, 0, 0)} + '%'">75%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4 col-span-1 md:col-span-2">
-                        <div class="flex items-center justify-between mb-4">
-                            <p class="text-sm font-medium text-gray-500">Recent User Activity</p>
-                            <a href="/admin/audit" class="text-xs text-primary-600 hover:underline">View all</a>
-                        </div>
-                        <div class="space-y-3">
-                            <div th:each="log : ${recentActivities}" th:if="${logStat.index < 3}" class="flex items-start space-x-3">
-                                <div class="flex-shrink-0 p-1 bg-primary-100 rounded-md">
-                                    <i class="fas fa-history text-primary-500"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-800" th:text="${log.actionDetails}">User created a new product</p>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-xs text-gray-500" th:text="${log.username}">john.doe</span>
-                                        <span class="text-xs text-gray-400">•</span>
-                                        <span class="text-xs text-gray-500" th:text="${#temporals.format(log.actionTimestamp, 'MMM dd, HH:mm')}">Mar 15, 12:30</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Recent Logins -->
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-medium text-gray-700">Недавние входы пользователей</h3>
+                    <a href="/admin/users" class="text-xs text-primary-600 hover:underline">Управление пользователями</a>
                 </div>
-
-                <!-- Recent Logins -->
-                <div class="bg-white rounded-lg shadow-sm p-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-medium text-gray-700">Recent User Logins</h3>
-                        <a href="/admin/users" class="text-xs text-primary-600 hover:underline">Manage Users</a>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                            <tr>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                            <tr th:each="user : ${recentLogins}">
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
-                                            <span th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">J</span>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900" th:text="${user.firstName + ' ' + user.lastLogin}">John Doe</p>
-                                            <p class="text-xs text-gray-500" th:text="${username}">john.doe</p>
-                                        </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                        <tr>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Пользователь</th>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Роль</th>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Последний вход</th>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="user : ${recentLogins}">
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
+                                        <span th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">J</span>
                                     </div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900" th:text="${user.firstName + ' ' + user.lastLogin}">John Doe</p>
+                                        <p class="text-xs text-gray-500" th:text="${username}">john.doe</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
                                             <span th:each="role : ${user.roles}"
                                                   th:class="${role.getRole() == 'ROLE_ADMIN' ? 'bg-red-100 text-red-800' :
                                                             (role.getRole() == 'ROLE_MANAGER' ? 'bg-blue-100 text-blue-800' :
@@ -207,324 +205,112 @@
                                                   class="px-2 py-1 text-xs rounded-full">
                                                 <span th:text="${role.getRole()}">Role</span>
                                             </span>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(user.lastLogin, 'MMM dd, HH:mm')}">Mar 15, 10:30</td>
-                                <td class="px-4 py-3 whitespace-nowrap">
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(user.lastLogin, 'MMM dd, HH:mm')}">Mar 15, 10:30</td>
+                            <td class="px-4 py-3 whitespace-nowrap">
                                             <span th:if="${user.isActive}" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                 <span class="h-2 w-2 mr-1 bg-green-500 rounded-full"></span>
                                                 Active
                                             </span>
-                                    <span th:unless="${user.isActive}" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                <span th:unless="${user.isActive}" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                                 <span class="h-2 w-2 mr-1 bg-gray-500 rounded-full"></span>
                                                 Inactive
                                             </span>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manager Section -->
+        <div sec:authorize="hasRole('MANAGER')" class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Inventory Management</h2>
+
+            <!-- Inventory Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Total Products</p>
+                            <h3 class="text-xl font-bold text-gray-800" th:text="${totalProducts}">486</h3>
+                        </div>
+                        <div class="p-2 bg-blue-100 rounded-full">
+                            <i class="fas fa-boxes text-blue-500"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="/inventory/products" class="text-xs text-blue-500 hover:underline">View all products</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Low Stock Alert</p>
+                            <h3 class="text-xl font-bold text-gray-800" th:text="${lowStockCount}">8</h3>
+                        </div>
+                        <div class="p-2 bg-red-100 rounded-full">
+                            <i class="fas fa-exclamation-triangle text-red-500"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="/inventory/low-stock" class="text-xs text-red-500 hover:underline">View low stock</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Pending Orders</p>
+                            <h3 class="text-xl font-bold text-gray-800" th:text="${pendingOrdersCount}">12</h3>
+                        </div>
+                        <div class="p-2 bg-amber-100 rounded-full">
+                            <i class="fas fa-hourglass-half text-amber-500"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="/inventory/pending" class="text-xs text-amber-500 hover:underline">Manage orders</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Business Partners</p>
+                            <h3 class="text-xl font-bold text-gray-800" th:text="${activeSuppliers + activeCustomers}">53</h3>
+                        </div>
+                        <div class="p-2 bg-green-100 rounded-full">
+                            <i class="fas fa-handshake text-green-500"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex justify-between">
+                        <a href="/partners/suppliers" class="text-xs text-green-500 hover:underline">
+                            <span th:text="${activeSuppliers}">24</span> Suppliers
+                        </a>
+                        <a href="/partners/customers" class="text-xs text-green-500 hover:underline">
+                            <span th:text="${activeCustomers}">29</span> Customers
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Manager Section -->
-            <div sec:authorize="hasRole('MANAGER')" class="mb-8">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Inventory Management</h2>
-
-                <!-- Inventory Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Products</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${totalProducts}">486</h3>
-                            </div>
-                            <div class="p-2 bg-blue-100 rounded-full">
-                                <i class="fas fa-boxes text-blue-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <a href="/inventory/products" class="text-xs text-blue-500 hover:underline">View all products</a>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Low Stock Alert</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${lowStockCount}">8</h3>
-                            </div>
-                            <div class="p-2 bg-red-100 rounded-full">
-                                <i class="fas fa-exclamation-triangle text-red-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <a href="/inventory/low-stock" class="text-xs text-red-500 hover:underline">View low stock</a>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Pending Orders</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${pendingOrdersCount}">12</h3>
-                            </div>
-                            <div class="p-2 bg-amber-100 rounded-full">
-                                <i class="fas fa-hourglass-half text-amber-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <a href="/inventory/pending" class="text-xs text-amber-500 hover:underline">Manage orders</a>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Business Partners</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${activeSuppliers + activeCustomers}">53</h3>
-                            </div>
-                            <div class="p-2 bg-green-100 rounded-full">
-                                <i class="fas fa-handshake text-green-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2 flex justify-between">
-                            <a href="/partners/suppliers" class="text-xs text-green-500 hover:underline">
-                                <span th:text="${activeSuppliers}">24</span> Suppliers
-                            </a>
-                            <a href="/partners/customers" class="text-xs text-green-500 hover:underline">
-                                <span th:text="${activeCustomers}">29</span> Customers
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Inventory Activity -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <!-- Low Stock Products -->
-                    <div class="bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-medium text-gray-700">Low Stock Products</h3>
-                            <a href="/inventory/low-stock" class="text-xs text-primary-600 hover:underline">View All</a>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead>
-                                <tr>
-                                    <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                    <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
-                                    <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min Stock</th>
-                                    <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                <tr th:each="product : ${lowStockProducts}" th:if="${productStat.index < 5}">
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-8 w-8 bg-gray-200 rounded-md flex items-center justify-center">
-                                                <i class="fas fa-box text-gray-500"></i>
-                                            </div>
-                                            <div class="ml-3">
-                                                <p class="text-sm font-medium text-gray-900" th:text="${product.name}">Product Name</p>
-                                                <p class="text-xs text-gray-500" th:text="${product.sku}">SKU-12345</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                        <span class="font-medium text-red-600" th:text="${product.currentStock}">1.5</span>
-                                        <span class="text-gray-500" th:text="${product.unitOfMeasure}">kg</span>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${product.minStockLevel + ' ' + product.unitOfMeasure}">5 kg</td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    <span class="h-2 w-2 mr-1 bg-red-500 rounded-full"></span>
-                                                    Critical
-                                                </span>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Recent Transactions -->
-                    <div class="bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-medium text-gray-700">Recent Transactions</h3>
-                            <a href="/transactions" class="text-xs text-primary-600 hover:underline">View All</a>
-                        </div>
-                        <div class="space-y-3">
-                            <div th:each="transaction : ${recentTransactions}" th:if="${transactionStat.index < 5}" class="flex items-start space-x-3">
-                                <div th:class="${transaction.transactionType.name() == 'RECEIVING' ? 'bg-green-100' :
-                    (transaction.transactionType.name() == 'SHIPPING' ? 'bg-blue-100' :
-                    (transaction.transactionType.name() == 'TRANSFER' ? 'bg-indigo-100' :
-                    (transaction.transactionType.name() == 'ADJUSTMENT' ? 'bg-amber-100' : 'bg-gray-100')))}"
-                                     class="flex-shrink-0 p-2 rounded-md">
-                                    <i th:class="${transaction.transactionType.name() == 'RECEIVING' ? 'fas fa-arrow-circle-down text-green-500' :
-                      (transaction.transactionType.name() == 'SHIPPING' ? 'fas fa-arrow-circle-up text-blue-500' :
-                      (transaction.transactionType.name() == 'TRANSFER' ? 'fas fa-exchange-alt text-indigo-500' :
-                      (transaction.transactionType.name() == 'ADJUSTMENT' ? 'fas fa-sliders-h text-amber-500' : 'fas fa-question-circle text-gray-500')))}"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center justify-between">
-                                        <p class="text-sm font-medium text-gray-900" th:text="${transaction.notes}">Received Product ABC</p>
-                                        <span class="text-xs text-gray-500" th:text="${#temporals.format(transaction.transactionDate, 'MMM dd')}">Mar 14</span>
-                                    </div>
-                                    <div class="text-xs text-gray-500 mt-1">
-                                        <span th:text="${transaction.quantity + ' ' + transaction.product.unitOfMeasure}">25 kg</span>
-                                        <span th:if="${transaction.transactionType.name() == 'TRANSFER'}">
-                                                from <span th:text="${transaction.sourceLocation.warehouse.name}">Warehouse A</span>
-                                                to <span th:text="${transaction.destinationLocation.warehouse.name}">Warehouse B</span>
-                                            </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 grid grid-cols-4 gap-2 border-t pt-3">
-                            <div class="text-center p-2">
-                                <div class="text-lg font-semibold text-green-600" th:text="${receivingCount}">45</div>
-                                <div class="text-xs text-gray-500">Receiving</div>
-                            </div>
-                            <div class="text-center p-2">
-                                <div class="text-lg font-semibold text-blue-600" th:text="${shippingCount}">32</div>
-                                <div class="text-xs text-gray-500">Shipping</div>
-                            </div>
-                            <div class="text-center p-2">
-                                <div class="text-lg font-semibold text-indigo-600" th:text="${transferCount}">18</div>
-                                <div class="text-xs text-gray-500">Transfers</div>
-                            </div>
-                            <div class="text-center p-2">
-                                <div class="text-lg font-semibold text-amber-600" th:text="${adjustmentCount}">7</div>
-                                <div class="text-xs text-gray-500">Adjustments</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pending Inventories -->
-                <div class="mt-6 bg-white rounded-lg shadow-sm p-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-medium text-gray-700">Pending Inventories</h3>
-                        <a href="/inventory/all" class="text-xs text-primary-600 hover:underline">View All</a>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                            <tr>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inventory ID</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warehouse</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                            <tr th:each="inventory : ${pendingInventories}" th:if="${inventoryStat.index < 5}">
-                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${inventory.id}">INV-2025-001</td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.warehouse.name}">Main Warehouse</td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(inventory.startDate, 'MMM dd, yyyy')}">Mar 10, 2025</td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.inventoryNumber}">42</td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                                <span class="h-2 w-2 mr-1 bg-amber-500 rounded-full"></span>
-                                                <span th:text="${inventory.status}">In Progress</span>
-                                            </span>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                    <a href="#" th:href="@{/inventory/{id}(id=${inventory.id})}" class="text-primary-600 hover:text-primary-900 mr-3">View</a>
-                                    <a href="#" th:href="@{/inventory/{id}/edit(id=${inventory.id})}" class="text-gray-600 hover:text-gray-900">Edit</a>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div sec:authorize="hasRole('WAREHOUSE_WORKER')" class="mb-8">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Warehouse Operations</h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Pending Tasks</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${pendingTasksCount}">7</h3>
-                            </div>
-                            <div class="p-2 bg-amber-100 rounded-full">
-                                <i class="fas fa-clipboard-list text-amber-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-amber-500 h-2.5 rounded-full" th:style="'width: ' + ${(pendingTasksCount / (pendingTasksCount + completedTasks)) * 100} + '%'"></div>
-                            </div>
-                            <div class="flex justify-between mt-1">
-                                <span class="text-xs text-gray-500">Progress</span>
-                                <span class="text-xs font-medium" th:text="${completedTasks} + '/' + ${pendingTasksCount + completedTasks}">15/22</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Active Inventories</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${activeInventories.size()}">3</h3>
-                            </div>
-                            <div class="p-2 bg-blue-100 rounded-full">
-                                <i class="fas fa-clipboard-check text-blue-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <a href="/worker/inventory" class="text-xs text-blue-500 hover:underline">View inventories</a>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Products</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${totalProducts}">486</h3>
-                            </div>
-                            <div class="p-2 bg-green-100 rounded-full">
-                                <i class="fas fa-boxes text-green-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <a href="/worker/products" class="text-xs text-green-500 hover:underline">View products</a>
-                        </div>
-                    </div>
-
-                    <div class="dashboard-card bg-white rounded-lg shadow-sm p-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Warehouses</p>
-                                <h3 class="text-xl font-bold text-gray-800" th:text="${warehouseCount}">5</h3>
-                            </div>
-                            <div class="p-2 bg-indigo-100 rounded-full">
-                                <i class="fas fa-warehouse text-indigo-500"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <a href="/worker/warehouses" class="text-xs text-indigo-500 hover:underline">View locations</a>
-                        </div>
-                    </div>
-                </div>
-
+            <!-- Inventory Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <!-- Low Stock Products -->
-                <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-4">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-medium text-gray-700">Low Stock Products</h3>
-                        <a href="/worker/low-stock" class="text-xs text-primary-600 hover:underline">View All</a>
+                        <a href="/inventory/low-stock" class="text-xs text-primary-600 hover:underline">View All</a>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
                             <tr>
                                 <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                                 <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Stock</th>
+                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min Stock</th>
                                 <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             </tr>
                             </thead>
@@ -541,15 +327,15 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${product.location}">Aisle 5, Shelf 3</td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                                     <span class="font-medium text-red-600" th:text="${product.currentStock}">1.5</span>
                                     <span class="text-gray-500" th:text="${product.unitOfMeasure}">kg</span>
                                 </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${product.minStockLevel + ' ' + product.unitOfMeasure}">5 kg</td>
                                 <td class="px-4 py-3 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                Critical
-                                            </span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Critical
+                                        </span>
                                 </td>
                             </tr>
                             </tbody>
@@ -557,99 +343,145 @@
                     </div>
                 </div>
 
-                <!-- Active Inventories -->
+                <!-- Recent Transactions -->
                 <div class="bg-white rounded-lg shadow-sm p-4">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-medium text-gray-700">Active Inventories</h3>
-                        <a href="/worker/inventory" class="text-xs text-primary-600 hover:underline">View All</a>
+                        <h3 class="font-medium text-gray-700">Recent Transactions</h3>
+                        <a href="/transactions" class="text-xs text-primary-600 hover:underline">View All</a>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                            <tr>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inventory ID</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warehouse</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                                <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                            <tr th:each="inventory : ${activeInventories}" th:if="${inventoryStat.index < 5}">
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-md flex items-center justify-center">
-                                            <i class="fas fa-clipboard-list text-blue-500"></i>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900" th:text="${inventory.id}">INV-2025-001</p>
-                                            <p class="text-xs text-gray-500" th:text="${#temporals.format(inventory.startDate, 'MMM dd, yyyy')}">Mar 10, 2025</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.warehouse.name}">Main Warehouse</td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                            <div class="bg-blue-500 h-2.5 rounded-full" th:style="'width: ' + '65' + '%'"></div>
-                                        </div>
-                                        <span class="ml-2 text-xs font-medium text-gray-500" >65%</span>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                    <a href="#" th:href="@{/worker/inventory/{id}(id=${inventory.id})}" class="text-primary-600 hover:text-primary-900">Continue</a>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                    <div class="space-y-3">
+                        <div th:each="transaction : ${recentTransactions}" th:if="${transactionStat.index < 5}" class="flex items-start space-x-3">
+                            <div th:class="${transaction.transactionType.name() == 'RECEIVING' ? 'bg-green-100' :
+                    (transaction.transactionType.name() == 'SHIPPING' ? 'bg-blue-100' :
+                    (transaction.transactionType.name() == 'TRANSFER' ? 'bg-indigo-100' :
+                    (transaction.transactionType.name() == 'ADJUSTMENT' ? 'bg-amber-100' : 'bg-gray-100')))}"
+                                 class="flex-shrink-0 p-2 rounded-md">
+                                <i th:class="${transaction.transactionType.name() == 'RECEIVING' ? 'fas fa-arrow-circle-down text-green-500' :
+                      (transaction.transactionType.name() == 'SHIPPING' ? 'fas fa-arrow-circle-up text-blue-500' :
+                      (transaction.transactionType.name() == 'TRANSFER' ? 'fas fa-exchange-alt text-indigo-500' :
+                      (transaction.transactionType.name() == 'ADJUSTMENT' ? 'fas fa-sliders-h text-amber-500' : 'fas fa-question-circle text-gray-500')))}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-medium text-gray-900" th:text="${transaction.notes}">Received Product ABC</p>
+                                    <span class="text-xs text-gray-500" th:text="${#temporals.format(transaction.transactionDate, 'MMM dd')}">Mar 14</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    <span th:text="${transaction.quantity + ' ' + transaction.product.unitOfMeasure}">25 kg</span>
+                                    <span th:if="${transaction.transactionType.name() == 'TRANSFER'}">
+                                                from <span th:text="${transaction.sourceLocation.warehouse.name}">Warehouse A</span>
+                                                to <span th:text="${transaction.destinationLocation.warehouse.name}">Warehouse B</span>
+                                            </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-4 gap-2 border-t pt-3">
+                        <div class="text-center p-2">
+                            <div class="text-lg font-semibold text-green-600" th:text="${receivingCount}">45</div>
+                            <div class="text-xs text-gray-500">Receiving</div>
+                        </div>
+                        <div class="text-center p-2">
+                            <div class="text-lg font-semibold text-blue-600" th:text="${shippingCount}">32</div>
+                            <div class="text-xs text-gray-500">Shipping</div>
+                        </div>
+                        <div class="text-center p-2">
+                            <div class="text-lg font-semibold text-indigo-600" th:text="${transferCount}">18</div>
+                            <div class="text-xs text-gray-500">Transfers</div>
+                        </div>
+                        <div class="text-center p-2">
+                            <div class="text-lg font-semibold text-amber-600" th:text="${adjustmentCount}">7</div>
+                            <div class="text-xs text-gray-500">Adjustments</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tasks Section (Common for all users) -->
-            <div class="mb-8">
+            <!-- Pending Inventories -->
+            <div class="mt-6 bg-white rounded-lg shadow-sm p-4">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">My Tasks</h2>
-                    <a href="/tasks" class="text-sm text-primary-600 hover:underline">View All</a>
+                    <h3 class="font-medium text-gray-700">Pending Inventories</h3>
+                    <a href="/inventory/all" class="text-xs text-primary-600 hover:underline">View All</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                        <tr>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inventory ID</th>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warehouse</th>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-2 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="inventory : ${pendingInventories}" th:if="${inventoryStat.index < 5}">
+                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${inventory.id}">INV-2025-001</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.warehouse.name}">Main Warehouse</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(inventory.startDate, 'MMM dd, yyyy')}">Mar 10, 2025</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" th:text="${inventory.inventoryNumber}">42</td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                        <span class="h-2 w-2 mr-1 bg-amber-500 rounded-full"></span>
+                                        <span th:text="${inventory.status}">In Progress</span>
+                                    </span>
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                <a href="#" th:href="@{/inventory/{id}(id=${inventory.id})}" class="text-primary-600 hover:text-primary-900 mr-3">View</a>
+                                <a href="#" th:href="@{/inventory/{id}/edit(id=${inventory.id})}" class="text-gray-600 hover:text-gray-900">Edit</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Section (Common for all users) -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">My Tasks</h2>
+                <a href="/tasks" class="text-sm text-primary-600 hover:underline">View All</a>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <div th:if="${taskPending.isEmpty()}" class="text-center py-8">
+                    <div class="text-center inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                        <i class="fas fa-check text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-gray-500">You have no pending tasks</p>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-sm p-4">
-                    <div th:if="${taskPending.isEmpty()}" class="text-center py-8">
-                        <div class="text-center inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-                            <i class="fas fa-check text-gray-400 text-2xl"></i>
-                        </div>
-                        <p class="text-gray-500">You have no pending tasks</p>
-                    </div>
-
-                    <div th:unless="${taskPending.isEmpty()}" class="space-y-4">
-                        <div th:each="task : ${taskPending}" class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex items-start space-x-3">
-                                <div th:class="${task.priority == 'HIGH' ? 'bg-red-100' : (task.priority == 'MEDIUM' ? 'bg-amber-100' : 'bg-blue-100')}"
-                                     class="flex-shrink-0 p-2 rounded-md">
-                                    <i th:class="${task.priority == 'HIGH' ? 'fas fa-exclamation-circle text-red-500' : (task.priority == 'MEDIUM' ? 'fas fa-exclamation text-amber-500' : 'fas fa-info-circle text-blue-500')}"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center justify-between">
-                                        <h4 class="font-medium text-gray-900" th:text="${task.title}">Task Title</h4>
-                                        <span th:if="${task.dueDate}" th:with="isPastDue=${task.dueDate.isBefore(#temporals.createNow())}" th:class="${isPastDue ? 'text-red-600' : 'text-gray-500'}"
-                                              class="text-xs" th:text="${#temporals.format(task.dueDate, 'MMM dd, HH:mm')}">
+                <div th:unless="${taskPending.isEmpty()}" class="space-y-4">
+                    <div th:each="task : ${taskPending}" class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-start space-x-3">
+                            <div th:class="${task.priority == 'HIGH' ? 'bg-red-100' : (task.priority == 'MEDIUM' ? 'bg-amber-100' : 'bg-blue-100')}"
+                                 class="flex-shrink-0 p-2 rounded-md">
+                                <i th:class="${task.priority == 'HIGH' ? 'fas fa-exclamation-circle text-red-500' : (task.priority == 'MEDIUM' ? 'fas fa-exclamation text-amber-500' : 'fas fa-info-circle text-blue-500')}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium text-gray-900" th:text="${task.title}">Task Title</h4>
+                                    <span th:if="${task.dueDate}" th:with="isPastDue=${task.dueDate.isBefore(#temporals.createNow())}" th:class="${isPastDue ? 'text-red-600' : 'text-gray-500'}"
+                                          class="text-xs" th:text="${#temporals.format(task.dueDate, 'MMM dd, HH:mm')}">
                                                 Mar 15, 16:30
                                             </span>
-                                    </div>
-                                    <p class="text-sm text-gray-600 mt-1" th:text="${task.description}">Task description goes here</p>
-                                    <div class="mt-2 flex items-center justify-between">
-                                        <div class="flex items-center space-x-2">
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1" th:text="${task.description}">Task description goes here</p>
+                                <div class="mt-2 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
                                                 <span th:class="${task.priority == 'HIGH' ? 'bg-red-100 text-red-800' : (task.priority == 'MEDIUM' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800')}"
                                                       class="px-2 py-0.5 rounded-full text-xs font-medium" th:text="${task.priority}">
                                                     HIGH
                                                 </span>
-                                            <span th:if="${task.assignedUser}" class="text-xs text-gray-500">
+                                        <span th:if="${task.assignedUser}" class="text-xs text-gray-500">
                                                     Assigned by <span th:text="${task.assignedUser}">John Doe</span>
                                                 </span>
-                                        </div>
-                                        <div class="flex items-center space-x-2">
-                                            <a href="#" th:href="@{/tasks/{id}/complete(id=${task.id})}" class="text-xs text-primary-600 hover:underline">Mark Complete</a>
-                                            <a href="#" th:href="@{/tasks/{id}(id=${task.id})}" class="text-xs text-gray-600 hover:underline">View Details</a>
-                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <a href="#" th:href="@{/tasks/{id}/complete(id=${task.id})}" class="text-xs text-primary-600 hover:underline">Mark Complete</a>
+                                        <a href="#" th:href="@{/tasks/{id}(id=${task.id})}" class="text-xs text-gray-600 hover:underline">View Details</a>
                                     </div>
                                 </div>
                             </div>
@@ -658,6 +490,7 @@
                 </div>
             </div>
         </div>
+    </div>
 </div>
 </body>
 </html>
