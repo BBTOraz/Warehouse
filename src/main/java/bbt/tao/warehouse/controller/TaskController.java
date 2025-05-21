@@ -135,10 +135,11 @@ public class TaskController {
         Optional<UserDTO> assignee;
         if (currentUser.getRoles().stream().anyMatch(r -> r.getRole() != RoleType.WAREHOUSE_WORKER)) {
             if (taskDTO.getAssignedUserDetails().getId() != null) {
-                assignee = userService.findUserById(taskDTO.getAssignedUserDetails().getId());
+                assignee = userService.findUserById(currentUser.getId());
                 if (assignee.isPresent()) {
                     boolean validAssignee = assignee.get().getRoles().stream().anyMatch(r -> r.getRole() == RoleType.MANAGER ||
                             r.getRole() == RoleType.ADMIN);
+                    log.info("user role: {}", assignee.get().getRoles());
                     log.info("Valid assignee: {}", validAssignee);
                     if (validAssignee) {
                         auditLogService.logAction(userMapper.toEntity(currentUser), ActionType.CREATE, "USER", 1L, "Создание задачи: " + taskDTO.getTitle() + " для " + assignee.get().getUsername(), "192.168.1.101" );

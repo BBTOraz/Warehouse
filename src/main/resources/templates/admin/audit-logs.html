@@ -93,7 +93,7 @@
                 <div class="flex justify-between items-center p-4 sm:p-6 border-b border-gray-200">
                     <h3 class="text-lg font-medium leading-6 text-gray-900">Результаты</h3>
                     <div class="flex space-x-2">
-                        <button type="button" id="export-csv" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <button type="button" href="#" th:onclick="|event.preventDefault()|" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <i class="fas fa-file-csv mr-2"></i>
                             Экспорт CSV
                         </button>
@@ -249,25 +249,6 @@
             // Обработчик для обновления данных
             document.getElementById('refresh-data').addEventListener('click', function() {
                 document.getElementById('filter-form').submit();
-            });
-
-            // Обработчик для экспорта в CSV
-            document.getElementById('export-csv').addEventListener('click', function() {
-                // Собираем текущие параметры фильтрации
-                const actionType = document.getElementById('actionType').value;
-                const userId = document.getElementById('userId').value;
-                const start = document.getElementById('start').value;
-                const end = document.getElementById('end').value;
-
-                // Формируем URL для экспорта с текущими фильтрами
-                let exportUrl = '/admin/audit-logs/export?format=csv';
-                if (actionType) exportUrl += `&actionType=${actionType}`;
-                if (userId) exportUrl += `&userId=${userId}`;
-                if (start) exportUrl += `&start=${start}`;
-                if (end) exportUrl += `&end=${end}`;
-
-                // Переходим по ссылке для скачивания
-                window.location.href = exportUrl;
             });
 
             // Открытие модального окна с деталями

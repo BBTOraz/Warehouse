@@ -79,7 +79,7 @@
         <!-- Кнопки действий -->
         <div class="flex justify-between items-center mt-8">
             <div>
-                <form th:action="@{/partners/suppliers/{id}/delete(id=${supplier.id})}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить этого поставщика?');">
+                <form href="#" th:onclick="|event.preventDefault()|" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить этого поставщика?');">
                     <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
                         <i class="fas fa-trash mr-2"></i> Удалить поставщика
                     </button>

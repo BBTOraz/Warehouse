@@ -26,7 +26,9 @@ import java.util.stream.Collectors;
 
 @Controller
 @AllArgsConstructor
-public class MainController {
+public class
+
+MainController {
 
     private final ProductService productService;
     private final InventoryService inventoryService;

@@ -57,7 +57,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <a th:href="@{/worker/inventory/{id}(id=${inventory.id})}" class="text-indigo-600 hover:text-indigo-900 mr-3">Детали</a>
                         <a th:if="${inventory.status == T(bbt.tao.warehouse.model.enums.InventoryStatus).IN_PROGRESS}"
-                           th:href="@{/worker/inventory/{id}/count(id=${inventory.id})}"
+                           href="#"
                            class="text-green-600 hover:text-green-900">Подсчет</a>
                     </td>
                 </tr>

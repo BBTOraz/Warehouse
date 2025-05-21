@@ -100,7 +100,7 @@ public class ManagerPartnersController {
     @GetMapping("/customers/search")
     public String searchCustomers(@RequestParam String name, Model model) {
         model.addAttribute("customers", customerService.findCustomersByName(name));
-        return "partners/customers";
+        return "manager/partners/customers";
     }
 
     // Supplier management

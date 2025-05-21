@@ -175,7 +175,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${movement.sourceLocation != null ? (movement.sourceLocation.warehouse != null ? movement.sourceLocation.warehouse.name + ' (' + movement.sourceLocation.code + ')' : movement.sourceLocation.code) : '—'}">—</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${movement.destinationLocation != null ? (movement.destinationLocation.warehouse != null ? movement.destinationLocation.warehouse.name + ' (' + movement.destinationLocation.code + ')' : movement.destinationLocation.code) : '—'}">A-1-2</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <a th:if="${movement.documentNumber}" th:href="@{/documents/{type}/{id}(type=${movement.id},id=${movement.documentNumber})}" class="text-indigo-600 hover:text-indigo-900" th:text="${movement.documentNumber}">DOC-001</a>
+                            <span th:if="${movement.documentNumber}" class="text-indigo-600 hover:text-indigo-900" th:text="${movement.documentNumber}">DOC-001</span>
                             <span th:unless="${movement.documentNumber}">—</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${movement.user?.username}">user1</td>

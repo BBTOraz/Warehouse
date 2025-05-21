@@ -27,4 +27,5 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
         log.info("User info: {}", user.getPassword());
         return new CustomUserDetails(userMapper.toDTO(user));
     }
+
 }

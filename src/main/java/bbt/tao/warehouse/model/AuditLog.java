@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-// Аудит действий пользователей
+
 @Data
 @Entity
 @Table(name = "audit_logs")

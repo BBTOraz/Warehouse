@@ -118,7 +118,7 @@
                                 <a th:href="@{/partners/customers/edit/{id}(id=${customer.id})}" class="text-amber-600 hover:text-amber-900" title="Редактировать">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form th:action="@{/partners/customers/{id}/delete(id=${customer.id})}" method="post" class="inline" onsubmit="return confirm('Вы уверены, что хотите удалить этого клиента?');">
+                                <form href="#" th:onclick="|event.preventDefault()|" method="post" class="inline" onsubmit="return confirm('Вы уверены, что хотите удалить этого клиента?');">
                                     <button type="submit" class="text-red-600 hover:text-red-900" title="Удалить">
                                         <i class="fas fa-trash"></i>
                                     </button>
